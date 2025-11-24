@@ -75,6 +75,8 @@ SUPPORT_CHAT = environ.get('SUPPORT_CHAT', 'codeconvo') # Support Chat Link With
 OWNER_LNK = environ.get('OWNER_LNK', 'https://t.me/ebookguy')
 
 # True Or False
+ON_HEROKU = 'DYNO' in environ
+PING_INTERVAL = int(environ.get("PING_INTERVAL", "1200"))
 AI_SPELL_CHECK = bool(environ.get('AI_SPELL_CHECK', True))
 PM_SEARCH = bool(environ.get('PM_SEARCH', True))
 BUTTON_MODE = bool(environ.get('BUTTON_MODE', True))
