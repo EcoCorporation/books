@@ -1,6 +1,3 @@
-
-
-
 import re
 from os import environ
 from Script import script 
@@ -24,10 +21,10 @@ auth_users = [int(user) if id_pattern.search(user) else user for user in environ
 AUTH_USERS = (auth_users + ADMINS) if auth_users else []
 
 # This Channel Is For When User Start Your Bot Then Bot Send That User Name And Id In This Log Channel, Same For Group Also.
-LOG_CHANNEL = int(environ.get('LOG_CHANNEL', '-1002458827148'))
+LOG_CHANNEL = int(environ.get('LOG_CHANNEL', '-1002145018097'))
 
 # This Is File Channel Where You Upload Your File Then Bot Automatically Save It In Database 
-CHANNELS = [int(ch) if id_pattern.search(ch) else ch for ch in environ.get('CHANNELS', '-1002393037732').split()]  # For Multiple Id Use One Space Between Each.
+CHANNELS = [int(ch) if id_pattern.search(ch) else ch for ch in environ.get('CHANNELS', '-1002042914531').split()]  # For Multiple Id Use One Space Between Each.
 
 # auth_channel means force subscribe channel.
 # if REQUEST_TO_JOIN_MODE is true then force subscribe work like request to join fsub, else if false then work like normal fsub.
@@ -57,8 +54,8 @@ DELETE_CHANNELS = [int(dch) if id_pattern.search(dch) else dch for dch in enviro
 
 
 # MongoDB information
-DATABASE_URI = environ.get('DATABASE_URI', "mongodb+srv://booksnew:booksnew@booksnew.d38ouzp.mongodb.net/?appName=booksnew")
-DATABASE_NAME = environ.get('DATABASE_NAME', "booksnew")
+DATABASE_URI = environ.get('DATABASE_URI', "mongodb+srv://filterbot:filterbot@filterbot.2brvjoa.mongodb.net/?retryWrites=true&w=majority&appName=filterbot")
+DATABASE_NAME = environ.get('DATABASE_NAME', "filterbot")
 COLLECTION_NAME = environ.get('COLLECTION_NAME', 'ebookguy')
 
 MULTIPLE_DATABASE = bool(environ.get('MULTIPLE_DATABASE', False)) # Set True or False
@@ -124,6 +121,7 @@ TUTORIAL = environ.get('TUTORIAL', 'https://t.me/tutorialtopass/7') # How Open S
 CACHE_TIME = int(environ.get('CACHE_TIME', 1800))
 MAX_B_TN = environ.get("MAX_B_TN", "5")
 PORT = environ.get("PORT", "8080")
+URL = environ.get("URL", "http://localhost:8080/")
 MSG_ALRT = environ.get('MSG_ALRT', 'Hello My Dear Friends ❤️')
 CUSTOM_FILE_CAPTION = environ.get("CUSTOM_FILE_CAPTION", f"{script.CAPTION}")
 BATCH_FILE_CAPTION = environ.get("BATCH_FILE_CAPTION", CUSTOM_FILE_CAPTION)
