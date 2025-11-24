@@ -156,7 +156,7 @@ async def auto_approve(client, message: ChatJoinRequest):
                     except:
                         f_caption = getattr(msg, 'caption', '')
                 file_id = file.file_id
-                    reply_markup = None
+                reply_markup = None
                 try:
                     p = await msg.copy(message.chat.id, caption=f_caption, protect_content=True if protect == "/pbatch" else False, reply_markup=reply_markup)
                 except FloodWait as e:
