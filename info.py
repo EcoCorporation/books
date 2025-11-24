@@ -68,13 +68,6 @@ O_DB_URI = environ.get('O_DB_URI', "")   # This Db Is For Other Data Store
 F_DB_URI = environ.get('F_DB_URI', "")   # This Db Is For File Data Store
 S_DB_URI = environ.get('S_DB_URI', "")   # This Db is for File Data Store When First Db Is Going To Be Full.
 
-
-
-
-
-
-
-
 # Links
 GRP_LNK = environ.get('GRP_LNK', 'https://t.me/codeconvo')
 CHNL_LNK = environ.get('CHNL_LNK', 'https://t.me/ebookguy')
@@ -121,22 +114,6 @@ TUTORIAL = environ.get('TUTORIAL', 'https://t.me/tutorialtopass/7') # How Open S
 CACHE_TIME = int(environ.get('CACHE_TIME', 1800))
 MAX_B_TN = environ.get("MAX_B_TN", "5")
 PORT = environ.get("PORT", "8080")
-URL = environ.get("URL", "http://localhost:8080/")
-MSG_ALRT = environ.get('MSG_ALRT', 'Hello My Dear Friends ❤️')
-CUSTOM_FILE_CAPTION = environ.get("CUSTOM_FILE_CAPTION", f"{script.CAPTION}")
-BATCH_FILE_CAPTION = environ.get("BATCH_FILE_CAPTION", CUSTOM_FILE_CAPTION)
-MAX_LIST_ELM = environ.get("MAX_LIST_ELM", None)
-
-
-# Choose Option Settings 
-LANGUAGES = ["malayalam", "mal", "tamil", "tam" ,"english", "eng", "hindi", "hin", "telugu", "tel", "kannada", "kan"]
-
-
-
-
-
-
-
 
 # Rename Info : If True Then Bot Rename File Else Not
 RENAME_MODE = bool(environ.get('RENAME_MODE', False)) # Set True or False
