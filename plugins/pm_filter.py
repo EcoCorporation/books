@@ -1,5 +1,3 @@
-
-
 import os, logging, string, asyncio, time, re, ast, random, math, pytz, pyrogram
 from datetime import datetime, timedelta, date, time
 from Script import script
@@ -239,35 +237,6 @@ async def advantage_spoll_choker(bot, query):
 async def cb_handler(client: Client, query: CallbackQuery):
     if query.data == "close_data":
         await query.message.delete()
-    elif query.data == "get_trail":
-        user_id = query.from_user.id
-        free_trial_status = await db.get_free_trial_status(user_id)
-        if not free_trial_status:            
-            await db.give_free_trail(user_id)
-            new_text = "**You can use free trial for 5 minutes from now 😀**"        
-            await query.message.edit_text(text=new_text)
-            return
-        else:
-            new_text= "**🤣 you already used free now no more free trail. please buy subscription here are our 👉 /plans**"
-            await query.message.edit_text(text=new_text)
-            return
-            
-    elif query.data == "buy_premium":
-        btn = [[            
-            InlineKeyboardButton("✅sᴇɴᴅ ʏᴏᴜʀ ᴘᴀʏᴍᴇɴᴛ ʀᴇᴄᴇɪᴘᴛ ʜᴇʀᴇ ✅", url = OWNER_LINK)
-        ]
-            for admin in ADMINS
-        ]
-        btn.append(
-            [InlineKeyboardButton("⚠️ᴄʟᴏsᴇ / ᴅᴇʟᴇᴛᴇ⚠️", callback_data="close_data")]
-        )
-        reply_markup = InlineKeyboardMarkup(btn)
-        await query.message.reply_photo(
-            photo=PAYMENT_QR,
-            caption=PAYMENT_TEXT,
-            reply_markup=reply_markup
-        )
-        return 
     elif query.data == "gfiltersdeleteallconfirm":
         await del_allg(query.message, 'gfilters')
         await query.answer("Done !")
@@ -501,20 +470,13 @@ async def cb_handler(client: Client, query: CallbackQuery):
             f_caption = f"{files['file_name']}"
 
         try:
-            if settings['is_shortlink'] and not await db.has_premium_access(query.from_user.id):
+            if settings['is_shortlink']:
                 if clicked == typed:
                     temp.SHORT[clicked] = query.message.chat.id
                     await query.answer(url=f"https://telegram.me/{temp.U_NAME}?start=short_{file_id}")
                     return
                 else:
                     await query.answer(f"Hᴇʏ {query.from_user.first_name}, Tʜɪs Is Nᴏᴛ Yᴏᴜʀ Mᴏᴠɪᴇ Rᴇǫᴜᴇsᴛ. Rᴇǫᴜᴇsᴛ Yᴏᴜʀ's !", show_alert=True)
-            elif settings['is_shortlink'] and await db.has_premium_access(query.from_user.id):
-                if clicked == typed:
-                    await query.answer(url=f"https://telegram.me/{temp.U_NAME}?start={ident}_{file_id}")
-                    return
-                else:
-                    await query.answer(f"Hᴇʏ {query.from_user.first_name}, Tʜɪs Is Nᴏᴛ Yᴏᴜʀ Mᴏᴠɪᴇ Rᴇǫᴜᴇsᴛ. Rᴇǫᴜᴇsᴛ Yᴏᴜʀ's !", show_alert=True)
-                    
             else:
                 if clicked == typed:
                     await query.answer(url=f"https://telegram.me/{temp.U_NAME}?start={ident}_{file_id}")
@@ -534,11 +496,8 @@ async def cb_handler(client: Client, query: CallbackQuery):
         settings = await get_settings(query.message.chat.id)
         pre = 'allfilesp' if settings['file_secure'] else 'allfiles'
         try:
-            if settings['is_shortlink'] and not await db.has_premium_access(query.from_user.id):
+            if settings['is_shortlink']:
                 await query.answer(url=f"https://telegram.me/{temp.U_NAME}?start=sendfiles1_{key}")
-            elif settings['is_shortlink'] and await db.has_premium_access(query.from_user.id):
-                await query.answer(url=f"https://telegram.me/{temp.U_NAME}?start={pre}_{key}")
-                return 
             else:
                 await query.answer(url=f"https://telegram.me/{temp.U_NAME}?start={pre}_{key}")
                 
