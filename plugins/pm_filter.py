@@ -29,6 +29,7 @@ BUTTONS2 = {}
 @Client.on_message(filters.group & filters.text, group=-1)
 async def give_filter(client, message):
     if message.text.startswith("/") or message.text.startswith("#"):
+        # print(f"DEBUG: give_filter ignoring command: {message.text}")
         return
     try:
         if message.chat.id != SUPPORT_CHAT_ID:
