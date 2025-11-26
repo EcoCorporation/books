@@ -23,8 +23,7 @@ default_setgs = {
     'fsub': None,
     'tutorial': TUTORIAL,
     'is_tutorial': IS_TUTORIAL,
-    'antilink': False,
-    'imdb': False
+    'antilink': False
 }
 
 
