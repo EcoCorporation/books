@@ -26,7 +26,7 @@ BUTTONS0 = {}
 BUTTONS1 = {}
 BUTTONS2 = {}
 
-@Client.on_message(filters.group & filters.text, group=-1)
+@Client.on_message(filters.group & filters.text, group=10)
 async def give_filter(client, message):
     if message.text.startswith("/") or message.text.startswith("#"):
         # print(f"DEBUG: give_filter ignoring command: {message.text}")

@@ -18,6 +18,7 @@ join_db = JoinReqs
 
 @Client.on_message(filters.command("start") & filters.incoming)
 async def start(client, message):
+    print("DEBUG: Start command triggered")
     # try:
     #     await message.react(emoji=random.choice(REACTIONS), big=True)
     # except:
@@ -582,6 +583,7 @@ async def delete_all_index_confirm(bot, query):
 
 @Client.on_message(filters.command('settings'))
 async def settings(client, message):
+    print(f"DEBUG: Settings command triggered in chat: {message.chat.id}")
     userid = message.from_user.id if message.from_user else None
     if not userid:
         return await message.reply(f"You are anonymous admin. Use /connect {message.chat.id} in PM")
@@ -614,6 +616,7 @@ async def settings(client, message):
             and st.status != enums.ChatMemberStatus.OWNER
             and str(userid) not in ADMINS
     ):
+        print(f"DEBUG: User {userid} is not admin/owner in group {grp_id}")
         return
     
     settings = await get_settings(grp_id)
@@ -734,6 +737,7 @@ async def settings(client, message):
                 parse_mode=enums.ParseMode.HTML,
                 reply_to_message_id=message.id
             )
+        print("DEBUG: Settings menu sent")
 
 
 
