@@ -1,9 +1,8 @@
-
-
 # Clone Code Credit : YT - @Tech_VJ / TG - @VJ_Bots / GitHub - @VJBots
 
 import sys, glob, importlib, logging, logging.config, pytz, asyncio
 from pathlib import Path
+from aiohttp import web
 
 # Get logging configurations
 logging.config.fileConfig('logging.conf')
@@ -29,6 +28,17 @@ files = glob.glob(ppath)
 EbookGuyBot.start()
 loop = asyncio.get_event_loop()
 
+async def web_server():
+    async def handle(request):
+        return web.Response(text="Hello world")
+
+    app = web.Application()
+    app.router.add_get('/', handle)
+    runner = web.AppRunner(app)
+    await runner.setup()
+    site = web.TCPSite(runner, '0.0.0.0', PORT)
+    await site.start()
+    logging.info(f"Web server started on port {PORT}")
 
 async def start():
     print('\n')
@@ -48,6 +58,10 @@ async def start():
             print("Tech VJ Imported => " + plugin_name)
     if ON_HEROKU:
         asyncio.create_task(ping_server())
+    
+    # Start web server
+    await web_server()
+    
     b_users, b_chats = await db.get_banned()
     temp.BANNED_USERS = b_users
     temp.BANNED_CHATS = b_chats
