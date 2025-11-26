@@ -1,5 +1,3 @@
-print("DEBUG: Loading plugins/pm_filter.py")
-
 import os, logging, string, asyncio, time, re, ast, random, math, pytz, pyrogram
 from datetime import datetime, timedelta, date, time
 from Script import script
@@ -28,15 +26,11 @@ BUTTONS0 = {}
 BUTTONS1 = {}
 BUTTONS2 = {}
 
-@Client.on_message(filters.group & filters.command("test_pm"), group=-1)
-async def test_pm_handler(client, message):
-    print(f"DEBUG: test_pm_handler triggered in {message.chat.id}")
-    await message.reply_text("PM Filter Plugin is Active and responding to commands!")
-
 @Client.on_message(filters.group & filters.text, group=-1)
 async def give_filter(client, message):
+    if message.text.startswith("/") or message.text.startswith("#"):
+        return
     try:
-        print(f"DEBUG: give_filter triggered (group -1) for chat {message.chat.id}, text: {message.text}")
         if message.chat.id != SUPPORT_CHAT_ID:
             settings = await get_settings(message.chat.id)
             chatid = message.chat.id 
@@ -1322,7 +1316,3 @@ async def global_filters(client, message, text=False):
                 break
     else:
         return False
-
-@Client.on_message(filters.group)
-async def debug_group_catchall(client, message):
-    print(f"DEBUG: Catch-all group handler triggered: {message.text}")
