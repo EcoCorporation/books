@@ -781,29 +781,39 @@ async def save_template(client, message):
     await sts.edit(f"Successfully changed template for {title} to\n\n{template}")
 
 
-@Client.on_message((filters.command(["request", "Request"]) | filters.regex("#request") | filters.regex("#Request")) & filters.group)
+@Client.on_message((filters.command(["request", "Request"]) | filters.regex("#request") | filters.regex("#Request")) & (filters.group | filters.private))
 async def requests(bot, message):
-    if REQST_CHANNEL is None: return # Must add REQST_CHANNEL to use this feature
     if message.reply_to_message:
         chat_id = message.chat.id
         reporter = str(message.from_user.id)
         mention = message.from_user.mention
         success = True
+        reported_post = None
         content = message.reply_to_message.text
         try:
             if REQST_CHANNEL is not None:
-                btn = [[
-                    InlineKeyboardButton('View Request', url=f"{message.reply_to_message.link}"),
-                    InlineKeyboardButton('Show Options', callback_data=f'show_option#{reporter}')
-                ]]
-                reported_post = await bot.send_message(chat_id=REQST_CHANNEL, text=f"<b>𝖱𝖾𝗉𝗈𝗋𝗍𝖾𝗋 : {mention} ({reporter})\n\n𝖬𝖾𝗌𝗌𝖺𝗀𝖾 : {content}</b>", reply_markup=InlineKeyboardMarkup(btn))
-                success = True
-            elif len(content) >= 3:
-                for admin in ADMINS:
+                if message.chat.type == enums.ChatType.PRIVATE:
+                    btn = [[
+                        InlineKeyboardButton('Show Options', callback_data=f'show_option#{reporter}')
+                    ]]
+                else:
                     btn = [[
                         InlineKeyboardButton('View Request', url=f"{message.reply_to_message.link}"),
                         InlineKeyboardButton('Show Options', callback_data=f'show_option#{reporter}')
                     ]]
+                reported_post = await bot.send_message(chat_id=REQST_CHANNEL, text=f"<b>𝖱𝖾𝗉𝗈𝗋𝗍𝖾𝗋 : {mention} ({reporter})\n\n𝖬𝖾𝗌𝗌𝖺𝗀𝖾 : {content}</b>", reply_markup=InlineKeyboardMarkup(btn))
+                success = True
+            elif len(content) >= 3:
+                for admin in ADMINS:
+                    if message.chat.type == enums.ChatType.PRIVATE:
+                        btn = [[
+                            InlineKeyboardButton('Show Options', callback_data=f'show_option#{reporter}')
+                        ]]
+                    else:
+                        btn = [[
+                            InlineKeyboardButton('View Request', url=f"{message.reply_to_message.link}"),
+                            InlineKeyboardButton('Show Options', callback_data=f'show_option#{reporter}')
+                        ]]
                     reported_post = await bot.send_message(chat_id=admin, text=f"<b>𝖱𝖾𝗉𝗈𝗋𝗍𝖾𝗋 : {mention} ({reporter})\n\n𝖬𝖾𝗌𝗌𝖺𝗀𝖾 : {content}</b>", reply_markup=InlineKeyboardMarkup(btn))
                     success = True
             else:
@@ -820,6 +830,7 @@ async def requests(bot, message):
         reporter = str(message.from_user.id)
         mention = message.from_user.mention
         success = True
+        reported_post = None
         content = message.text
         keywords = ["#request", "/request", "#Request", "/Request"]
         for keyword in keywords:
@@ -827,18 +838,28 @@ async def requests(bot, message):
                 content = content.replace(keyword, "")
         try:
             if REQST_CHANNEL is not None and len(content) >= 3:
-                btn = [[
-                    InlineKeyboardButton('View Request', url=f"{message.link}"),
-                    InlineKeyboardButton('Show Options', callback_data=f'show_option#{reporter}')
-                ]]
-                reported_post = await bot.send_message(chat_id=REQST_CHANNEL, text=f"<b>𝖱𝖾𝗉𝗈𝗋𝗍𝖾𝗋 : {mention} ({reporter})\n\n𝖬𝖾𝗌𝗌𝖺𝗀𝖾 : {content}</b>", reply_markup=InlineKeyboardMarkup(btn))
-                success = True
-            elif len(content) >= 3:
-                for admin in ADMINS:
+                if message.chat.type == enums.ChatType.PRIVATE:
+                    btn = [[
+                        InlineKeyboardButton('Show Options', callback_data=f'show_option#{reporter}')
+                    ]]
+                else:
                     btn = [[
                         InlineKeyboardButton('View Request', url=f"{message.link}"),
                         InlineKeyboardButton('Show Options', callback_data=f'show_option#{reporter}')
                     ]]
+                reported_post = await bot.send_message(chat_id=REQST_CHANNEL, text=f"<b>𝖱𝖾𝗉𝗈𝗋𝗍𝖾𝗋 : {mention} ({reporter})\n\n𝖬𝖾𝗌𝗌𝖺𝗀𝖾 : {content}</b>", reply_markup=InlineKeyboardMarkup(btn))
+                success = True
+            elif len(content) >= 3:
+                for admin in ADMINS:
+                    if message.chat.type == enums.ChatType.PRIVATE:
+                        btn = [[
+                            InlineKeyboardButton('Show Options', callback_data=f'show_option#{reporter}')
+                        ]]
+                    else:
+                        btn = [[
+                            InlineKeyboardButton('View Request', url=f"{message.link}"),
+                            InlineKeyboardButton('Show Options', callback_data=f'show_option#{reporter}')
+                        ]]
                     reported_post = await bot.send_message(chat_id=admin, text=f"<b>𝖱𝖾𝗉𝗈𝗋𝗍𝖾𝗋 : {mention} ({reporter})\n\n𝖬𝖾𝗌𝗌𝖺𝗀𝖾 : {content}</b>", reply_markup=InlineKeyboardMarkup(btn))
                     success = True
             else:
@@ -853,13 +874,16 @@ async def requests(bot, message):
     else:
         success = False
     
-    if success:
-        link = await bot.create_chat_invite_link(int(REQST_CHANNEL))
-        btn = [[
-            InlineKeyboardButton('Join Channel', url=link.invite_link),
-            InlineKeyboardButton('View Request', url=f"{reported_post.link}")
-        ]]
-        await message.reply_text("<b>Your request has been added! Please wait for some time.\n\nJoin Channel First & View Request</b>", reply_markup=InlineKeyboardMarkup(btn))
+    if success and reported_post:
+        if REQST_CHANNEL:
+            link = await bot.create_chat_invite_link(int(REQST_CHANNEL))
+            btn = [[
+                InlineKeyboardButton('Join Channel', url=link.invite_link),
+                InlineKeyboardButton('View Request', url=f"{reported_post.link}")
+            ]]
+            await message.reply_text("<b>Your request has been added! Please wait for some time.\n\nJoin Channel First & View Request</b>", reply_markup=InlineKeyboardMarkup(btn))
+        else:
+            await message.reply_text("<b>Your request has been sent to Admins!</b>")
     
 @Client.on_message(filters.command("send") & filters.user(ADMINS))
 async def send_msg(bot, message):
