@@ -46,33 +46,6 @@ async def start():
     bot_info = await EbookGuyBot.get_me()
     await initialize_clients()
     
-    # Manually load all plugins recursively
-    plugin_files = glob.glob("plugins/**/*.py", recursive=True)
-    for name in plugin_files:
-        if name.endswith("__init__.py"):
-            continue
-        
-        # Convert path to module format: plugins.subfolder.file
-        # e.g. plugins\Extra\check_alive.py -> plugins.Extra.check_alive
-        
-        # Normalize path separators
-        name = name.replace("\\", "/")
-        
-        # Remove .py extension
-        module_path = name[:-3]
-        
-        # Replace / with .
-        import_path = module_path.replace("/", ".")
-        
-        try:
-            spec = importlib.util.spec_from_file_location(import_path, name)
-            load = importlib.util.module_from_spec(spec)
-            spec.loader.exec_module(load)
-            sys.modules[import_path] = load
-            print(f"Imported => {import_path}")
-        except Exception as e:
-            print(f"Failed to import {name}: {e}")
-
     if ON_HEROKU:
         asyncio.create_task(ping_server())
     

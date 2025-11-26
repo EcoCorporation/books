@@ -16,7 +16,7 @@ class EbookGuyXBot(Client):
             api_hash=API_HASH,
             bot_token=BOT_TOKEN,
             workers=150,
-            plugins=None,
+            plugins={"root": "plugins"},
             sleep_threshold=5,
         )
 
