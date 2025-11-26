@@ -22,7 +22,8 @@ default_setgs = {
     'is_shortlink': SHORTLINK_MODE,
     'fsub': None,
     'tutorial': TUTORIAL,
-    'is_tutorial': IS_TUTORIAL
+    'is_tutorial': IS_TUTORIAL,
+    'antilink': False
 }
 
 

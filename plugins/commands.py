@@ -722,6 +722,16 @@ async def settings(client, message):
                     callback_data=f'setgs#is_shortlink#{settings["is_shortlink"]}#{grp_id}',
                 ),
             ],
+            [
+                InlineKeyboardButton(
+                    'Anti-Link',
+                    callback_data=f'setgs#antilink#{settings["antilink"]}#{grp_id}',
+                ),
+                InlineKeyboardButton(
+                    '✔ Oɴ' if settings["antilink"] else '✘ Oғғ',
+                    callback_data=f'setgs#antilink#{settings["antilink"]}#{grp_id}',
+                ),
+            ],
         ]
         btn = [[
             InlineKeyboardButton("Oᴘᴇɴ Hᴇʀᴇ ↓", callback_data=f"opnsetgrp#{grp_id}"),
