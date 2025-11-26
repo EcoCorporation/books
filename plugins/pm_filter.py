@@ -1,3 +1,5 @@
+print("DEBUG: Loading plugins/pm_filter.py")
+
 import os, logging, string, asyncio, time, re, ast, random, math, pytz, pyrogram
 from datetime import datetime, timedelta, date, time
 from Script import script
@@ -26,10 +28,15 @@ BUTTONS0 = {}
 BUTTONS1 = {}
 BUTTONS2 = {}
 
-@Client.on_message(filters.group & filters.text, group=1)
+@Client.on_message(filters.group & filters.command("test_pm"), group=-1)
+async def test_pm_handler(client, message):
+    print(f"DEBUG: test_pm_handler triggered in {message.chat.id}")
+    await message.reply_text("PM Filter Plugin is Active and responding to commands!")
+
+@Client.on_message(filters.group & filters.text, group=-1)
 async def give_filter(client, message):
     try:
-        print(f"DEBUG: give_filter triggered for chat {message.chat.id}, text: {message.text}")
+        print(f"DEBUG: give_filter triggered (group -1) for chat {message.chat.id}, text: {message.text}")
         if message.chat.id != SUPPORT_CHAT_ID:
             settings = await get_settings(message.chat.id)
             chatid = message.chat.id 
@@ -768,7 +775,7 @@ async def cb_handler(client: Client, query: CallbackQuery):
             except UserIsBlocked:
                 await client.send_message(chat_id=int(SUPPORT_CHAT_ID), text=f"<b>Hᴇʏ {user.mention}, Sᴏʀʀʏ Yᴏᴜʀ ʀᴇᴏ̨ᴜᴇsᴛ ɪs ᴜɴᴀᴠᴀɪʟᴀʙʟᴇ. Sᴏ ᴏᴜʀ ᴍᴏᴅᴇʀᴀᴛᴏʀs ᴄᴀɴ'ᴛ ᴜᴘᴅᴀᴛᴇ ɪᴛ.\n\nNᴏᴛᴇ: Tʜɪs ᴍᴇssᴀɢᴇ ɪs sᴇɴᴛ ᴛᴏ ᴛʜɪs ɢʀᴏᴜᴘ ʙᴇᴄᴀsᴇ ʏᴏᴜ'ᴠᴇ ʙʟᴏᴄᴋᴇᴅ ᴛʜᴇ ʙᴏᴛ. Tᴏ sᴇɴᴅ ᴛʜɪs ᴍᴇssᴀɢᴇ ᴛᴏ ʏᴏᴜʀ PM, Mᴜsᴛ ᴜɴʙʟᴏᴄᴋ ᴛʜᴇ ʙᴏᴛ.</b>", reply_markup=InlineKeyboardMarkup(btn2))
         else:
-            await query.answer("Yᴏᴜ ᴅᴏɴ'ᴛ ʜᴀᴠᴇ sᴜғғɪᴄɪᴀɴᴛ ʀɪɡᴛs ᴛᴏ ᴅᴏ ᴛʜɪs !", show_alert=True)
+            await query.answer("Yᴏᴜ ᴅᴏɴ'ᴛ ʜᴀᴠᴇ sᴜғғɪᴄɪᴀɴᴛ ʀɪɡʜᴛs ᴛᴏ ᴅᴏ ᴛʜɪs !", show_alert=True)
 
     elif query.data.startswith("uploaded"):
         ident, from_user = query.data.split("#")
