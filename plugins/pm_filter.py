@@ -865,7 +865,7 @@ async def cb_handler(client: Client, query: CallbackQuery):
             user = await client.get_users(from_user)
             reply_markup = InlineKeyboardMarkup(btn)
             content = query.message.text
-            await query.message.edit_text(f"<b><strike>{content}</strike></b>", reply_markup=reply_markup)
+            await query.message.edit_text(f"<b><strike>{content}</strike></b> .", reply_markup=reply_markup)
             await query.answer("Sᴇᴛ ᴛᴏ Pʀᴏᴄᴇssɪɴɢ !")
             try:
                 await client.send_message(chat_id=int(from_user), text=f"<b>Hᴇʏ {user.mention}, Yᴏᴜʀ ʀᴇᴏ̨ᴜᴇsᴛ ɪs ʙᴇɪɴɢ ᴘʀᴏᴄᴇssᴇᴅ ʙʏ ᴏᴜʀ ᴍᴏᴅᴇʀᴀᴛᴏʀs. Pʟᴇᴀsᴇ ᴡᴀɪᴛ.</b>", reply_markup=InlineKeyboardMarkup(btn2))
