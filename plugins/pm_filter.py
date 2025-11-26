@@ -849,9 +849,8 @@ async def cb_handler(client: Client, query: CallbackQuery):
     elif query.data.startswith("processing"):
         ident, from_user = query.data.split("#")
         btn = [[
+                InlineKeyboardButton("🔙 Back", callback_data=f"show_option#{from_user}"),
                 InlineKeyboardButton("⏳ Pʀᴏᴄᴇssɪɴɢ ⏳", callback_data=f"proalert#{from_user}")
-              ],[
-                InlineKeyboardButton("🔙 Go Back", callback_data=f"show_option#{from_user}")
               ]]
         try:
             link = await client.create_chat_invite_link(int(REQST_CHANNEL))
@@ -866,13 +865,7 @@ async def cb_handler(client: Client, query: CallbackQuery):
             user = await client.get_users(from_user)
             reply_markup = InlineKeyboardMarkup(btn)
             content = query.message.text
-            await client.edit_message_text(
-                chat_id=query.message.chat.id,
-                message_id=query.message.id,
-                text=f"<b><strike>{content}</strike></b>",
-                reply_markup=reply_markup,
-                parse_mode=enums.ParseMode.HTML
-            )
+            await query.message.edit_text(f"<b><strike>{content}</strike></b>", reply_markup=reply_markup)
             await query.answer("Sᴇᴛ ᴛᴏ Pʀᴏᴄᴇssɪɴɢ !")
             try:
                 await client.send_message(chat_id=int(from_user), text=f"<b>Hᴇʏ {user.mention}, Yᴏᴜʀ ʀᴇᴏ̨ᴜᴇsᴛ ɪs ʙᴇɪɴɢ ᴘʀᴏᴄᴇssᴇᴅ ʙʏ ᴏᴜʀ ᴍᴏᴅᴇʀᴀᴛᴏʀs. Pʟᴇᴀsᴇ ᴡᴀɪᴛ.</b>", reply_markup=InlineKeyboardMarkup(btn2))
