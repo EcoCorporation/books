@@ -17,6 +17,25 @@ sec_client = MongoClient(SEC_FILE_DB_URI)
 sec_db = sec_client[DATABASE_NAME]
 sec_col = sec_db[COLLECTION_NAME]
 
+notif_col = db["notifications"]
+
+
+async def add_notification(user_id, query):
+    """Add a notification for a user."""
+    if notif_col.find_one({'user_id': user_id, 'query': query}):
+        return False
+    notif_col.insert_one({'user_id': user_id, 'query': query})
+    return True
+
+async def check_notifications(file_name):
+    """Check if any notifications match the file name."""
+    matches = []
+    query_cursor = notif_col.find({})
+    for notif in query_cursor:
+        if notif['query'].lower() in file_name.lower():
+            matches.append((notif['user_id'], notif['query']))
+            notif_col.delete_one({'_id': notif['_id']})
+    return matches
 
 async def save_file(media):
     """Save file in the database."""
@@ -32,26 +51,29 @@ async def save_file(media):
     }
 
     if is_file_already_saved(file_id, file_name):
-        return False, 0
+        return False, 0, []
 
     try:
         col.insert_one(file)
         print(f"{file_name} is successfully saved.")
-        return True, 1
+        users_to_notify = await check_notifications(file_name)
+        return True, 1, users_to_notify
     except DuplicateKeyError:
         print(f"{file_name} is already saved.")
-        return False, 0
+        return False, 0, []
     except:
         if MULTIPLE_DATABASE:
             try:
                 sec_col.insert_one(file)
                 print(f"{file_name} is successfully saved.")
-                return True, 1
+                users_to_notify = await check_notifications(file_name)
+                return True, 1, users_to_notify
             except DuplicateKeyError:
                 print(f"{file_name} is already saved.")
-                return False, 0
+                return False, 0, []
         else:
             print("Your Current File Database Is Full, Turn On Multiple Database Feature And Add Second File Mongodb To Save File.")
+            return False, 2, []
 
 def clean_file_name(file_name):
     """Clean and format the file name."""

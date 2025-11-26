@@ -8,7 +8,7 @@ from pyrogram.errors import FloodWait, UserIsBlocked, MessageNotModified, PeerId
 from pyrogram.errors.exceptions.bad_request_400 import MediaEmpty, PhotoInvalidDimensions, WebpageMediaEmpty
 from utils import get_size, is_subscribed, pub_is_subscribed, temp, get_settings, save_group_settings, get_shortlink, get_tutorial, send_all, get_cap
 from database.users_chats_db import db
-from database.ia_filterdb import col, sec_col, db as vjdb, sec_db, get_file_details, get_search_results, get_bad_files
+from database.ia_filterdb import col, sec_col, db as vjdb, sec_db, get_file_details, get_search_results, get_bad_files, add_notification
 from database.filters_mdb import del_all, find_filter, get_filters
 from database.connections_mdb import mydb, active_connection, all_connections, delete_connection, if_active, make_active, make_inactive
 from database.gfilters_mdb import find_gfilter, get_gfilters, del_allg
@@ -540,6 +540,14 @@ async def cb_handler(client: Client, query: CallbackQuery):
             return
         ident, kk, file_id = query.data.split("#")
         await query.answer(url=f"https://t.me/{temp.U_NAME}?start={kk}_{file_id}")
+
+    elif query.data.startswith("notify_"):
+        search_query = query.data.split("_", 1)[1]
+        user_id = query.from_user.id
+        if await add_notification(user_id, search_query):
+            await query.answer(f"✅ You will be notified when files for '{search_query}' are uploaded.", show_alert=True)
+        else:
+            await query.answer(f"⚠️ You are already subscribed to '{search_query}'.", show_alert=True)
     
     elif query.data == "pages":
         await query.answer()
@@ -915,7 +923,8 @@ async def auto_filter(client, name, msg, reply_msg, ai_search):
         files, offset, total_results = await get_search_results(message.chat.id ,search, offset=0, filter=True)
         settings = await get_settings(message.chat.id)
         if not files:
-            return await reply_msg.edit_text(f"**⚠️ No File Found For Your Query - {name}**\n**Make Sure Spelling Is Correct.**")
+            btn = [[InlineKeyboardButton("🔔 Notify me when available", callback_data=f"notify_{name}")]]
+            return await reply_msg.edit_text(f"**⚠️ No File Found For Your Query - {name}**\n**Make Sure Spelling Is Correct.**", reply_markup=InlineKeyboardMarkup(btn))
     else:
         return
     pre = 'filep' if settings['file_secure'] else 'file'
