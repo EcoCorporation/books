@@ -23,7 +23,8 @@ default_setgs = {
     'fsub': None,
     'tutorial': TUTORIAL,
     'is_tutorial': IS_TUTORIAL,
-    'antilink': False
+    'antilink': False,
+    'imdb': False
 }
 
 
@@ -177,7 +178,12 @@ class Database:
     async def get_settings(self, id):
         chat = await self.grp.find_one({'id':int(id)})
         if chat:
-            return chat.get('settings', default_setgs)
+            settings = chat.get('settings', default_setgs)
+            # Merge with defaults to ensure all keys exist
+            for key, value in default_setgs.items():
+                if key not in settings:
+                    settings[key] = value
+            return settings
         return default_setgs
     
 
