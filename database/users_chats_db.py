@@ -2,7 +2,7 @@ import re
 from pymongo.errors import DuplicateKeyError
 import motor.motor_asyncio
 from pymongo import MongoClient
-from info import DATABASE_NAME, USER_DB_URI, OTHER_DB_URI, CUSTOM_FILE_CAPTION, MELCOW_NEW_USERS, BUTTON_MODE, SPELL_CHECK_REPLY, PROTECT_CONTENT, AUTO_DELETE, MAX_BTN, AUTO_FFILTER, SHORTLINK_API, SHORTLINK_URL, SHORTLINK_MODE, TUTORIAL, IS_TUTORIAL
+from info import DATABASE_NAME, USER_DB_URI, OTHER_DB_URI, CUSTOM_FILE_CAPTION, MELCOW_NEW_USERS, BUTTON_MODE, PROTECT_CONTENT, AUTO_DELETE, MAX_BTN, AUTO_FFILTER, SHORTLINK_API, SHORTLINK_URL, SHORTLINK_MODE, TUTORIAL, IS_TUTORIAL
 import time
 import datetime
 
@@ -11,7 +11,6 @@ import datetime
 default_setgs = {
     'button': BUTTON_MODE,
     'file_secure': PROTECT_CONTENT,
-    'spell_check': SPELL_CHECK_REPLY,
     'welcome': MELCOW_NEW_USERS,
     'auto_delete': AUTO_DELETE,
     'auto_ffilter': AUTO_FFILTER,
