@@ -875,15 +875,23 @@ async def requests(bot, message):
         success = False
     
     if success and reported_post:
-        if REQST_CHANNEL:
-            link = await bot.create_chat_invite_link(int(REQST_CHANNEL))
-            btn = [[
-                InlineKeyboardButton('Join Channel', url=link.invite_link),
-                InlineKeyboardButton('View Request', url=f"{reported_post.link}")
-            ]]
-            await message.reply_text("<b>Your request has been added! Please wait for some time.\n\nJoin Channel First & View Request</b>", reply_markup=InlineKeyboardMarkup(btn))
-        else:
-            await message.reply_text("<b>Your request has been sent to Admins!</b>")
+        try:
+            if REQST_CHANNEL:
+                try:
+                    link = await bot.create_chat_invite_link(int(REQST_CHANNEL))
+                    url = link.invite_link
+                except:
+                    url = CHNL_LNK
+                
+                btn = [[
+                    InlineKeyboardButton('Join Channel', url=url),
+                    InlineKeyboardButton('View Request', url=f"{reported_post.link}")
+                ]]
+                await message.reply_text("<b>Your request has been added! Please wait for some time.\n\nJoin Channel First & View Request</b>", reply_markup=InlineKeyboardMarkup(btn))
+            else:
+                await message.reply_text("<b>Your request has been sent to Admins!</b>")
+        except Exception as e:
+            await message.reply_text(f"Request sent, but failed to reply to you: {e}")
     
 @Client.on_message(filters.command("send") & filters.user(ADMINS))
 async def send_msg(bot, message):
