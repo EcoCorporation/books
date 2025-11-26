@@ -851,7 +851,8 @@ async def cb_handler(client: Client, query: CallbackQuery):
     elif query.data.startswith("processing"):
         ident, from_user = query.data.split("#")
         btn = [[
-                InlineKeyboardButton("⏳ Pʀᴏᴄᴇssɪɴɢ ⏳", callback_data=f"proalert#{from_user}")
+                InlineKeyboardButton("⏳ Pʀᴏᴄᴇssɪɴɢ ⏳", callback_data=f"proalert#{from_user}"),
+                InlineKeyboardButton("🔙 Back", callback_data=f"show_option#{from_user}")
               ]]
         try:
             link = await client.create_chat_invite_link(int(REQST_CHANNEL))
