@@ -115,7 +115,7 @@ TUTORIAL = environ.get('TUTORIAL', 'https://t.me/tutorialtopass/7') # How Open S
 # Others
 CACHE_TIME = int(environ.get('CACHE_TIME', 1800))
 MAX_B_TN = environ.get("MAX_B_TN", "5")
-PORT = environ.get("PORT", "8080")
+PORT = int(environ.get("PORT", "8080"))
 URL = environ.get("URL", "http://localhost:8080/")
 MSG_ALRT = environ.get('MSG_ALRT', 'Hello My Dear Friends ❤️')
 CUSTOM_FILE_CAPTION = environ.get("CUSTOM_FILE_CAPTION", f"{script.CAPTION}")
