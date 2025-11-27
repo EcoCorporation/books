@@ -748,7 +748,8 @@ async def cb_handler(client: Client, query: CallbackQuery):
     elif query.data.startswith("unavailable"):
         ident, from_user = query.data.split("#")
         btn = [[
-                InlineKeyboardButton("⚠️ Unavailable ⚠️", callback_data=f"unalert#{from_user}")
+                InlineKeyboardButton("⚠️ Unavailable ⚠️", callback_data=f"unalert#{from_user}"),
+                InlineKeyboardButton("🔙 Back", callback_data=f"show_option#{from_user}")
               ]]
         try:
             link = await client.create_chat_invite_link(int(REQST_CHANNEL))
@@ -785,8 +786,6 @@ async def cb_handler(client: Client, query: CallbackQuery):
         btn2 = [[
                  InlineKeyboardButton('Join Channel', url=url),
                  InlineKeyboardButton("View Status", url=f"{query.message.link}")
-               ],[
-                 InlineKeyboardButton("Request Group Link", url=GRP_LNK)
                ]]
         if query.from_user.id in ADMINS:
             user = await client.get_users(from_user)
@@ -814,8 +813,6 @@ async def cb_handler(client: Client, query: CallbackQuery):
         btn2 = [[
             InlineKeyboardButton('Join Channel', url=url),
             InlineKeyboardButton("View Status", url=f"{query.message.link}")
-        ],[
-            InlineKeyboardButton("Request Group Link", url=GRP_LNK)
         ]]
         if query.from_user.id in ADMINS:
             user = await client.get_users(from_user)
