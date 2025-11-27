@@ -6,7 +6,7 @@ from pyrogram.types import *
 from database.ia_filterdb import col, sec_col, get_file_details, unpack_new_file_id, get_bad_files
 from database.users_chats_db import db
 from database.join_reqs import JoinReqs
-from info import OWNER_LNK, REACTIONS, CHANNELS, REQUEST_TO_JOIN_MODE, TRY_AGAIN_BTN, ADMINS, SHORTLINK_MODE, AUTH_CHANNEL, LOG_CHANNEL, PICS, BATCH_FILE_CAPTION, CUSTOM_FILE_CAPTION, PROTECT_CONTENT, CHNL_LNK, GRP_LNK, REQST_CHANNEL, SUPPORT_CHAT, MAX_B_TN, VERIFY, SHORTLINK_API, SHORTLINK_URL, TUTORIAL, VERIFY_TUTORIAL, IS_TUTORIAL, BTN_URL_2, BTN_URL_3, BTN_URL_4
+from info import OWNER_LNK, REACTIONS, CHANNELS, REQUEST_TO_JOIN_MODE, TRY_AGAIN_BTN, ADMINS, SHORTLINK_MODE, AUTH_CHANNEL, LOG_CHANNEL, PICS, BATCH_FILE_CAPTION, CUSTOM_FILE_CAPTION, PROTECT_CONTENT, CHNL_LNK, GRP_LNK, REQST_CHANNEL, SUPPORT_CHAT, MAX_B_TN, VERIFY, SHORTLINK_API, SHORTLINK_URL, TUTORIAL, VERIFY_TUTORIAL, IS_TUTORIAL, BTN_URL_2, BTN_URL_3, BTN_URL_4, BTN_LABEL_1, BTN_LABEL_2, BTN_LABEL_3, BTN_LABEL_4
 from utils import get_settings, pub_is_subscribed, get_size, is_subscribed, save_group_settings, temp, verify_user, check_token, check_verification, get_token, get_shortlink, get_tutorial, get_seconds
 from database.connections_mdb import active_connection
 from urllib.parse import quote_plus
@@ -16,22 +16,22 @@ logger = logging.getLogger(__name__)
 BATCH_FILES = {}
 join_db = JoinReqs
 
+def get_start_buttons():
+    return [
+        [InlineKeyboardButton(BTN_LABEL_1, url=CHNL_LNK)],
+        [InlineKeyboardButton(BTN_LABEL_2, url=BTN_URL_2)],
+        [InlineKeyboardButton(BTN_LABEL_3, url=BTN_URL_3)],
+        [InlineKeyboardButton(BTN_LABEL_4, url=BTN_URL_4)]
+    ]
+
 @Client.on_message(filters.command("start") & filters.incoming)
 async def start(client, message):
-    print("DEBUG: Start command triggered")
+    logger.info("Start command triggered")
     if message.chat.type in [enums.ChatType.GROUP, enums.ChatType.SUPERGROUP]:
-        buttons = [[
-        InlineKeyboardButton('🔥 Our Main Channel 🔥', url=CHNL_LNK)
-    ],[
-        InlineKeyboardButton('📚 How to Search Book Properly', url=BTN_URL_2)
-    ],[
-        InlineKeyboardButton('🔥 Fat Burning Kitchen', url=BTN_URL_3)
-    ],[
-        InlineKeyboardButton('💖 His Secret Obsession', url=BTN_URL_4)
-    ]]
+        buttons = get_start_buttons()
         reply_markup = InlineKeyboardMarkup(buttons)
         await message.reply(script.START_TXT.format(message.from_user.mention if message.from_user else message.chat.title, temp.U_NAME, temp.B_NAME), reply_markup=reply_markup, disable_web_page_preview=True)
-        await asyncio.sleep(2) # 😢 https://github.com/EvamariaTG/EvaMaria/blob/master/plugins/p_ttishow.py#L17 😬 wait a bit, before checking.
+        # Removed arbitrary sleep
         if not await db.get_chat(message.chat.id):
             total=await client.get_chat_members_count(message.chat.id)
             await client.send_message(LOG_CHANNEL, script.LOG_TEXT_G.format(message.chat.title, message.chat.id, total, "Unknown"))       
@@ -41,15 +41,7 @@ async def start(client, message):
         await db.add_user(message.from_user.id, message.from_user.first_name)
         await client.send_message(LOG_CHANNEL, script.LOG_TEXT_P.format(message.from_user.id, message.from_user.mention))
     if len(message.command) != 2:
-        buttons = [[
-        InlineKeyboardButton('🔥 Our Main Channel 🔥', url=CHNL_LNK)
-    ],[
-        InlineKeyboardButton('📚 How to Search Book Properly', url=BTN_URL_2)
-    ],[
-        InlineKeyboardButton('🔥 Fat Burning Kitchen', url=BTN_URL_3)
-    ],[
-        InlineKeyboardButton('💖 His Secret Obsession', url=BTN_URL_4)
-    ]]
+        buttons = get_start_buttons()
 
         reply_markup = InlineKeyboardMarkup(buttons)
         await message.reply_photo(
@@ -67,7 +59,7 @@ async def start(client, message):
             else:
                 invite_link = await client.create_chat_invite_link(int(AUTH_CHANNEL))
         except Exception as e:
-            print(e)
+            logger.error(e)
             await message.reply_text("Make sure Bot is admin in Forcesub channel")
             return
         try:
@@ -102,19 +94,11 @@ async def start(client, message):
             )
             return
         except Exception as e:
-            print(e)
+            logger.error(e)
             return await message.reply_text("something wrong with force subscribe.")
             
     if len(message.command) == 2 and message.command[1] in ["subscribe", "error", "okay", "help"]:
-        buttons = [[
-        InlineKeyboardButton('🔥 Our Main Channel 🔥', url=CHNL_LNK)
-    ],[
-        InlineKeyboardButton('📚 How to Search Book Properly', url=BTN_URL_2)
-    ],[
-        InlineKeyboardButton('🔥 Fat Burning Kitchen', url=BTN_URL_3)
-    ],[
-        InlineKeyboardButton('💖 His Secret Obsession', url=BTN_URL_4)
-    ]]
+        buttons = get_start_buttons()
 
         reply_markup = InlineKeyboardMarkup(buttons)      
         await message.reply_photo(
@@ -1105,7 +1089,7 @@ async def removetutorial(bot, message):
 
 @Client.on_message(filters.command("restart") & filters.user(ADMINS))
 async def stop_button(bot, message):
-    msg = await bot.send_message(text="**🔄 𝙿𝚁𝙾𝙲𝙴𝚂𝚂𝙴𝚂 𝚂𝚃𝙾𝙿𝙴𝙳. 𝙱𝙾𝚃 𝙸𝚂 𝚁𝙴𝚂𝚃𝙰𝚁𝚃𝙸𝙽𝙶...**", chat_id=message.chat.id)       
+    msg = await bot.send_message(text="**🔄 𝙿𝚁𝙾𝙲𝙴𝚂𝚂𝙴𝚂 𝚂𝚃𝙾𝙿𝙴𝙳. 𝙱𝙾𝚃 𝙸𝚂 𝚁𝙴𝚂𝚃𝙰𝚁𝙻𝙾𝙽𝙶...**", chat_id=message.chat.id)       
     await asyncio.sleep(3)
     await msg.edit("**✅️ 𝙱𝙾𝚃 𝙸𝚂 𝚁𝙴𝚂𝚃𝙰𝚝𝙴𝙳. 𝙽𝙾𝚆 𝚈𝙾𝚄 𝙲𝙰𝙽 𝚄𝚂𝙴 𝙼𝙴**")
     os.execl(sys.executable, sys.executable, *sys.argv)
