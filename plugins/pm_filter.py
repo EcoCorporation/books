@@ -766,9 +766,9 @@ async def cb_handler(client: Client, query: CallbackQuery):
             await query.message.edit_text(f"<b><strike>{content}</strike></b>", reply_markup=reply_markup)
             await query.answer("Set to Unavailable !")
             try:
-                await client.send_message(chat_id=int(from_user), text=f"<b>Hey {user.mention}, Sorry Your request is unavailable. So our moderators can't update it.</b>", reply_markup=InlineKeyboardMarkup(btn2))
+                await client.send_message(chat_id=int(from_user), text=script.REQ_UNAVAILABLE.format(user.mention), reply_markup=InlineKeyboardMarkup(btn2))
             except UserIsBlocked:
-                await client.send_message(chat_id=int(SUPPORT_CHAT_ID), text=f"<b>Hey {user.mention}, Sorry Your request is unavailable. So our moderators can't update it.\n\nNote: This message is sent to this group because you've blocked the bot. To send this message to your PM, Must unblock the bot.</b>", reply_markup=InlineKeyboardMarkup(btn2))
+                await client.send_message(chat_id=int(SUPPORT_CHAT_ID), text=script.REQ_UNAVAILABLE.format(user.mention) + "\n\nNote: This message is sent to this group because you've blocked the bot. To send this message to your PM, Must unblock the bot.", reply_markup=InlineKeyboardMarkup(btn2))
         else:
             await query.answer("You don't have sufficient rights to do this !", show_alert=True)
 
@@ -795,9 +795,9 @@ async def cb_handler(client: Client, query: CallbackQuery):
             await query.message.edit_text(f"<b><strike>{content}</strike></b>", reply_markup=reply_markup)
             await query.answer("Set to Uploaded !")
             try:
-                await client.send_message(chat_id=int(from_user), text=f"<b>Hey {user.mention}, Your request has been uploaded by our moderators. Kindly search in our Group.</b>", reply_markup=InlineKeyboardMarkup(btn2))
+                await client.send_message(chat_id=int(from_user), text=script.REQ_UPLOADED.format(user.mention), reply_markup=InlineKeyboardMarkup(btn2))
             except UserIsBlocked:
-                await client.send_message(chat_id=int(SUPPORT_CHAT_ID), text=f"<b>Hey {user.mention}, Your request has been uploaded by our moderators. Kindly search in our Group.\n\nNote: This message is sent to this group because you've blocked the bot. To send this message to your PM, Must unblock the bot.</b>", reply_markup=InlineKeyboardMarkup(btn2))
+                await client.send_message(chat_id=int(SUPPORT_CHAT_ID), text=script.REQ_UPLOADED.format(user.mention) + "\n\nNote: This message is sent to this group because you've blocked the bot. To send this message to your PM, Must unblock the bot.", reply_markup=InlineKeyboardMarkup(btn2))
         else:
             await query.answer("You don't have sufficient rights to do this !", show_alert=True)
 
@@ -824,9 +824,9 @@ async def cb_handler(client: Client, query: CallbackQuery):
             await query.message.edit_text(f"<b><strike>{content}</strike></b>", reply_markup=reply_markup)
             await query.answer("Set to Already Available !")
             try:
-                await client.send_message(chat_id=int(from_user), text=f"<b>Hey {user.mention}, Your request is already available on our bot's database. Kindly search in our Group.</b>", reply_markup=InlineKeyboardMarkup(btn2))
+                await client.send_message(chat_id=int(from_user), text=script.REQ_ALREADY_EXIST.format(user.mention), reply_markup=InlineKeyboardMarkup(btn2))
             except UserIsBlocked:
-                await client.send_message(chat_id=int(SUPPORT_CHAT_ID), text=f"<b>Hey {user.mention}, Your request is already available on our bot's database. Kindly search in our Group.\n\nNote: This message is sent to this group because you've blocked the bot. To send this message to your PM, Must unblock the bot.</b>", reply_markup=InlineKeyboardMarkup(btn2))
+                await client.send_message(chat_id=int(SUPPORT_CHAT_ID), text=script.REQ_ALREADY_EXIST.format(user.mention) + "\n\nNote: This message is sent to this group because you've blocked the bot. To send this message to your PM, Must unblock the bot.", reply_markup=InlineKeyboardMarkup(btn2))
         else:
             await query.answer("You don't have sufficient rights to do this !", show_alert=True)
 
@@ -876,9 +876,9 @@ async def cb_handler(client: Client, query: CallbackQuery):
             await query.message.edit_text(f"<b><strike>{content}</strike></b>", reply_markup=reply_markup)
             await query.answer("Set to Processing !")
             try:
-                await client.send_message(chat_id=int(from_user), text=f"<b>Hey {user.mention}, Your request is being processed by our moderators. Please wait.</b>", reply_markup=InlineKeyboardMarkup(btn2))
+                await client.send_message(chat_id=int(from_user), text=script.REQ_PROCESSING.format(user.mention), reply_markup=InlineKeyboardMarkup(btn2))
             except UserIsBlocked:
-                await client.send_message(chat_id=int(SUPPORT_CHAT_ID), text=f"<b>Hey {user.mention}, Your request is being processed by our moderators. Please wait.\n\nNote: This message is sent to this group because you've blocked the bot. To send this message to your PM, Must unblock the bot.</b>", reply_markup=InlineKeyboardMarkup(btn2))
+                await client.send_message(chat_id=int(SUPPORT_CHAT_ID), text=script.REQ_PROCESSING.format(user.mention) + "\n\nNote: This message is sent to this group because you've blocked the bot. To send this message to your PM, Must unblock the bot.", reply_markup=InlineKeyboardMarkup(btn2))
         else:
             await query.answer("You don't have sufficient rights to do this !", show_alert=True)
 

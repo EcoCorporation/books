@@ -130,3 +130,27 @@ We couldn't find <b>"{}"</b> in our Library.
 1. Check spelling on <a href="https://www.google.com/search?q={}+book">Google</a>.
 2. Search for the <b>Author</b> instead.
 3. Still can't find it? Type <code>/request {}</code> to notify admins."""
+
+    REQ_UPLOADED = """<b>Great news {}! 📚</b>
+
+The book you requested has been added to our <b>Digital Library</b>.
+
+<i>You can now search for it directly in this bot!</i>"""
+
+    REQ_UNAVAILABLE = """<b>Hello {}, 😔</b>
+
+We searched everywhere, but unfortunately, this book is currently unavailable in our archives.
+
+<i>We will keep looking and update it if we find it!</i>"""
+
+    REQ_ALREADY_EXIST = """<b>Hello {}! 📖</b>
+
+Good news! This book is already available in our <b>Digital Library</b>.
+
+<i>Please search for it again here in the bot.</i>"""
+
+    REQ_PROCESSING = """<b>Hello {}, ⏳</b>
+
+Your request has been received by our librarians.
+
+<i>We are currently processing it and will notify you once it's added to the shelves!</i>"""
