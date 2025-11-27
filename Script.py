@@ -1,6 +1,6 @@
 class script(object):
     LOGO = """
-VJ Filter Bot
+Filter Bot
 """
 
     RESTART_TXT = """
@@ -69,9 +69,6 @@ Commands And Usage:
     EXTRAMOD_TXT = """Help: Extra Modules
 <b>Note:</b>
 my features Stay here new features coming soon...  
- <b>✯ Maintained by : <a href=https://t.me/ebookguy>☢VJ☢</a></b>
-  
- <b>✯ Join here : <a href=https://t.me/ebookguy>☢Join my updateds☢</a></b> 
   
  ./id - <code>Get id of a specified user.</ 
  code> 
