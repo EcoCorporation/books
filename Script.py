@@ -9,7 +9,16 @@ Filter Bot
 <b>Time:</b> {}
 """
 
-    START_TXT = """<i><b>Hello {},</b></i>"""
+    START_TXT = """<b>👋 Hello {},</b>
+
+Welcome to your personal <b>Digital Library</b> 📚.
+
+I can help you find <b>E-Books</b> and <b>Audiobooks</b> in seconds.
+
+<b>🚀 How to use me:</b>
+Simply type the <b>Book Name</b> or <b>Author Name</b> and I will search my library for you.
+
+<i>👇 Join our channels for updates & support.</i>"""
 
 
 
