@@ -241,10 +241,10 @@ Example:- /set_caption 📕 File Name: {filename}
     TRY_AGAIN_BTN = "↻ Try Again"
     
     UNMUTE_TEXT = "👋 Hello {},\n\nPlease join the channel then click on unmute me button. 😇"
-    SUPPORT_GROUP_TEXT = "<b>Hey {}, {} results are found in my database for your query {}. \n\nThis is a support group so that you can't get files from here...\n\nJoin and Search Here - {}</b>"
+    SUPPORT_GROUP_TEXT = "<b>Hey {}, {} results are found in my Library for your query {}. \n\nThis is a support group so that you can't get files from here...\n\nJoin and Search Here - {}</b>"
     NO_RESULTS_MSG = """<b>❌ No Results Found</b>
 
-We couldn't find <b>"{}"</b> in our database.
+We couldn't find <b>"{}"</b> in our Library.
 
 <b>👇 Try these steps:</b>
 1. Check spelling on <a href="https://www.google.com/search?q={}+book">Google</a>.
