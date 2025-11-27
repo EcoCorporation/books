@@ -786,7 +786,7 @@ async def cb_handler(client: Client, query: CallbackQuery):
                  InlineKeyboardButton('Join Channel', url=url),
                  InlineKeyboardButton("View Status", url=f"{query.message.link}")
                ],[
-                 InlineKeyboardButton("Request Group Link", url="https://t.me/+KzbVzahVdqQ3MmM1")
+                 InlineKeyboardButton("Request Group Link", url=GRP_LNK)
                ]]
         if query.from_user.id in ADMINS:
             user = await client.get_users(from_user)

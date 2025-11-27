@@ -69,7 +69,7 @@ F_DB_URI = environ.get('F_DB_URI', "")   # This Db Is For File Data Store
 S_DB_URI = environ.get('S_DB_URI', "")   # This Db is for File Data Store When First Db Is Going To Be Full.
 
 # Links
-GRP_LNK = environ.get('GRP_LNK', 'https://t.me/codeconvo')
+GRP_LNK = environ.get('GRP_LNK', 'https://t.me/ebookguy')
 CHNL_LNK = environ.get('CHNL_LNK', 'https://t.me/ebookguy')
 SUPPORT_CHAT = environ.get('SUPPORT_CHAT', 'codeconvo') # Support Chat Link Without https:// or @
 OWNER_LNK = environ.get('OWNER_LNK', 'https://t.me/ebookguy')
