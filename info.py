@@ -74,6 +74,11 @@ CHNL_LNK = environ.get('CHNL_LNK', 'https://t.me/ebookguy')
 SUPPORT_CHAT = environ.get('SUPPORT_CHAT', 'codeconvo') # Support Chat Link Without https:// or @
 OWNER_LNK = environ.get('OWNER_LNK', 'https://t.me/ebookguy')
 
+# Affiliate Links
+HOW_TO_SEARCH_LNK = environ.get('HOW_TO_SEARCH_LNK', 'https://t.me/EbookGuy/14')
+FAT_BURNING_LNK = environ.get('FAT_BURNING_LNK', 'https://d6416ego1cnb1m0bqdoan-wv3h.hop.clickbank.net')
+SECRET_OBSESSION_LNK = environ.get('SECRET_OBSESSION_LNK', 'https://6b61fbsc-elbfs1gnqwbkifpbr.hop.clickbank.net/?cbpage=1')
+
 # True Or False
 ON_HEROKU = 'DYNO' in environ
 PING_INTERVAL = int(environ.get("PING_INTERVAL", "1200"))

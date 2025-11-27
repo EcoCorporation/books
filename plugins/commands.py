@@ -6,7 +6,7 @@ from pyrogram.types import *
 from database.ia_filterdb import col, sec_col, get_file_details, unpack_new_file_id, get_bad_files
 from database.users_chats_db import db
 from database.join_reqs import JoinReqs
-from info import OWNER_LNK, REACTIONS, CHANNELS, REQUEST_TO_JOIN_MODE, TRY_AGAIN_BTN, ADMINS, SHORTLINK_MODE, AUTH_CHANNEL, LOG_CHANNEL, PICS, BATCH_FILE_CAPTION, CUSTOM_FILE_CAPTION, PROTECT_CONTENT, CHNL_LNK, GRP_LNK, REQST_CHANNEL, SUPPORT_CHAT, MAX_B_TN, VERIFY, SHORTLINK_API, SHORTLINK_URL, TUTORIAL, VERIFY_TUTORIAL, IS_TUTORIAL
+from info import OWNER_LNK, REACTIONS, CHANNELS, REQUEST_TO_JOIN_MODE, TRY_AGAIN_BTN, ADMINS, SHORTLINK_MODE, AUTH_CHANNEL, LOG_CHANNEL, PICS, BATCH_FILE_CAPTION, CUSTOM_FILE_CAPTION, PROTECT_CONTENT, CHNL_LNK, GRP_LNK, REQST_CHANNEL, SUPPORT_CHAT, MAX_B_TN, VERIFY, SHORTLINK_API, SHORTLINK_URL, TUTORIAL, VERIFY_TUTORIAL, IS_TUTORIAL, HOW_TO_SEARCH_LNK, FAT_BURNING_LNK, SECRET_OBSESSION_LNK
 from utils import get_settings, pub_is_subscribed, get_size, is_subscribed, save_group_settings, temp, verify_user, check_token, check_verification, get_token, get_shortlink, get_tutorial, get_seconds
 from database.connections_mdb import active_connection
 from urllib.parse import quote_plus
@@ -23,11 +23,11 @@ async def start(client, message):
         buttons = [[
         InlineKeyboardButton('🔥 Our Main Channel 🔥', url=CHNL_LNK)
     ],[
-        InlineKeyboardButton('📚 How to Search Book Properly', url="https://t.me/EbookGuy/14")
+        InlineKeyboardButton('📚 How to Search Book Properly', url=HOW_TO_SEARCH_LNK)
     ],[
-        InlineKeyboardButton('🔥 Fat Burning Kitchen', url='https://d6416ego1cnb1m0bqdoan-wv3h.hop.clickbank.net')
+        InlineKeyboardButton('🔥 Fat Burning Kitchen', url=FAT_BURNING_LNK)
     ],[
-        InlineKeyboardButton('💖 His Secret Obsession', url="https://6b61fbsc-elbfs1gnqwbkifpbr.hop.clickbank.net/?cbpage=1")
+        InlineKeyboardButton('💖 His Secret Obsession', url=SECRET_OBSESSION_LNK)
     ]]
         reply_markup = InlineKeyboardMarkup(buttons)
         await message.reply(script.START_TXT.format(message.from_user.mention if message.from_user else message.chat.title, temp.U_NAME, temp.B_NAME), reply_markup=reply_markup, disable_web_page_preview=True)
@@ -44,11 +44,11 @@ async def start(client, message):
         buttons = [[
         InlineKeyboardButton('🔥 Our Main Channel 🔥', url=CHNL_LNK)
     ],[
-        InlineKeyboardButton('📚 How to Search Book Properly', url="https://t.me/EbookGuy/14")
+        InlineKeyboardButton('📚 How to Search Book Properly', url=HOW_TO_SEARCH_LNK)
     ],[
-        InlineKeyboardButton('🔥 Fat Burning Kitchen', url='https://d6416ego1cnb1m0bqdoan-wv3h.hop.clickbank.net')
+        InlineKeyboardButton('🔥 Fat Burning Kitchen', url=FAT_BURNING_LNK)
     ],[
-        InlineKeyboardButton('💖 His Secret Obsession', url="https://6b61fbsc-elbfs1gnqwbkifpbr.hop.clickbank.net/?cbpage=1")
+        InlineKeyboardButton('💖 His Secret Obsession', url=SECRET_OBSESSION_LNK)
     ]]
 
         reply_markup = InlineKeyboardMarkup(buttons)
@@ -109,11 +109,11 @@ async def start(client, message):
         buttons = [[
         InlineKeyboardButton('🔥 Our Main Channel 🔥', url=CHNL_LNK)
     ],[
-        InlineKeyboardButton('📚 How to Search Book Properly', url="https://t.me/EbookGuy/14")
+        InlineKeyboardButton('📚 How to Search Book Properly', url=HOW_TO_SEARCH_LNK)
     ],[
-        InlineKeyboardButton('🔥 Fat Burning Kitchen', url='https://d6416ego1cnb1m0bqdoan-wv3h.hop.clickbank.net')
+        InlineKeyboardButton('🔥 Fat Burning Kitchen', url=FAT_BURNING_LNK)
     ],[
-        InlineKeyboardButton('💖 His Secret Obsession', url="https://6b61fbsc-elbfs1gnqwbkifpbr.hop.clickbank.net/?cbpage=1")
+        InlineKeyboardButton('💖 His Secret Obsession', url=SECRET_OBSESSION_LNK)
     ]]
 
         reply_markup = InlineKeyboardMarkup(buttons)      
