@@ -42,7 +42,7 @@ async def give_filter(client, message):
                     if btn:
                         btn.append([InlineKeyboardButton("Unmute Me 🔕", callback_data=f"unmuteme#{int(user_id)}")])
                         await client.restrict_chat_member(chatid, message.from_user.id, ChatPermissions(can_send_messages=False))
-                        await message.reply_photo(photo=random.choice(PICS), caption=f"👋 Hello {message.from_user.mention},\n\nPlease join the channel then click on unmute me button. 😇", reply_markup=InlineKeyboardMarkup(btn), parse_mode=enums.ParseMode.HTML)
+                        await message.reply_photo(photo=random.choice(PICS), caption=script.UNMUTE_TEXT.format(message.from_user.mention), reply_markup=InlineKeyboardMarkup(btn), parse_mode=enums.ParseMode.HTML)
                         return
                 except Exception as e:
                     print(e)
@@ -69,7 +69,7 @@ async def give_filter(client, message):
             if total_results == 0:
                 return
             else:
-                return await message.reply_text(f"<b>Hey {message.from_user.mention}, {str(total_results)} results are found in my database for your query {search}. \n\nThis is a support group so that you can't get files from here...\n\nJoin and Search Here - {GRP_LNK}</b>")
+                return await message.reply_text(script.SUPPORT_GROUP_TEXT.format(message.from_user.mention, str(total_results), search, GRP_LNK))
     except Exception as e:
         print(f"ERROR in give_filter: {e}")
         import traceback

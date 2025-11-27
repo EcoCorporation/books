@@ -6,7 +6,7 @@ from pyrogram.types import *
 from database.ia_filterdb import col, sec_col, get_file_details, unpack_new_file_id, get_bad_files
 from database.users_chats_db import db
 from database.join_reqs import JoinReqs
-from info import OWNER_LNK, REACTIONS, CHANNELS, REQUEST_TO_JOIN_MODE, TRY_AGAIN_BTN, ADMINS, SHORTLINK_MODE, AUTH_CHANNEL, LOG_CHANNEL, PICS, BATCH_FILE_CAPTION, CUSTOM_FILE_CAPTION, PROTECT_CONTENT, CHNL_LNK, GRP_LNK, REQST_CHANNEL, SUPPORT_CHAT, MAX_B_TN, VERIFY, SHORTLINK_API, SHORTLINK_URL, TUTORIAL, VERIFY_TUTORIAL, IS_TUTORIAL, BTN_URL_2, BTN_URL_3, BTN_URL_4, BTN_LABEL_1, BTN_LABEL_2, BTN_LABEL_3, BTN_LABEL_4
+from info import OWNER_LNK, REACTIONS, CHANNELS, REQUEST_TO_JOIN_MODE, TRY_AGAIN_BTN, ADMINS, SHORTLINK_MODE, AUTH_CHANNEL, LOG_CHANNEL, PICS, BATCH_FILE_CAPTION, CUSTOM_FILE_CAPTION, PROTECT_CONTENT, CHNL_LNK, GRP_LNK, REQST_CHANNEL, SUPPORT_CHAT, MAX_B_TN, VERIFY, SHORTLINK_API, SHORTLINK_URL, TUTORIAL, VERIFY_TUTORIAL, IS_TUTORIAL, BTN_URL_2, BTN_URL_3, BTN_URL_4
 from utils import get_settings, pub_is_subscribed, get_size, is_subscribed, save_group_settings, temp, verify_user, check_token, check_verification, get_token, get_shortlink, get_tutorial, get_seconds
 from database.connections_mdb import active_connection
 from urllib.parse import quote_plus
@@ -16,22 +16,22 @@ logger = logging.getLogger(__name__)
 BATCH_FILES = {}
 join_db = JoinReqs
 
-def get_start_buttons():
-    return [
-        [InlineKeyboardButton(BTN_LABEL_1, url=CHNL_LNK)],
-        [InlineKeyboardButton(BTN_LABEL_2, url=BTN_URL_2)],
-        [InlineKeyboardButton(BTN_LABEL_3, url=BTN_URL_3)],
-        [InlineKeyboardButton(BTN_LABEL_4, url=BTN_URL_4)]
-    ]
-
 @Client.on_message(filters.command("start") & filters.incoming)
 async def start(client, message):
-    logger.info("Start command triggered")
+    print("DEBUG: Start command triggered")
     if message.chat.type in [enums.ChatType.GROUP, enums.ChatType.SUPERGROUP]:
-        buttons = get_start_buttons()
+        buttons = [[
+        InlineKeyboardButton('🔥 Our Main Channel 🔥', url=CHNL_LNK)
+    ],[
+        InlineKeyboardButton('📚 How to Search Book Properly', url=BTN_URL_2)
+    ],[
+        InlineKeyboardButton('🔥 Fat Burning Kitchen', url=BTN_URL_3)
+    ],[
+        InlineKeyboardButton('💖 His Secret Obsession', url=BTN_URL_4)
+    ]]
         reply_markup = InlineKeyboardMarkup(buttons)
         await message.reply(script.START_TXT.format(message.from_user.mention if message.from_user else message.chat.title, temp.U_NAME, temp.B_NAME), reply_markup=reply_markup, disable_web_page_preview=True)
-        # Removed arbitrary sleep
+        await asyncio.sleep(2) # 😢 https://github.com/EvamariaTG/EvaMaria/blob/master/plugins/p_ttishow.py#L17 😬 wait a bit, before checking.
         if not await db.get_chat(message.chat.id):
             total=await client.get_chat_members_count(message.chat.id)
             await client.send_message(LOG_CHANNEL, script.LOG_TEXT_G.format(message.chat.title, message.chat.id, total, "Unknown"))       
@@ -41,7 +41,15 @@ async def start(client, message):
         await db.add_user(message.from_user.id, message.from_user.first_name)
         await client.send_message(LOG_CHANNEL, script.LOG_TEXT_P.format(message.from_user.id, message.from_user.mention))
     if len(message.command) != 2:
-        buttons = get_start_buttons()
+        buttons = [[
+        InlineKeyboardButton('🔥 Our Main Channel 🔥', url=CHNL_LNK)
+    ],[
+        InlineKeyboardButton('📚 How to Search Book Properly', url=BTN_URL_2)
+    ],[
+        InlineKeyboardButton('🔥 Fat Burning Kitchen', url=BTN_URL_3)
+    ],[
+        InlineKeyboardButton('💖 His Secret Obsession', url=BTN_URL_4)
+    ]]
 
         reply_markup = InlineKeyboardMarkup(buttons)
         await message.reply_photo(
@@ -59,33 +67,33 @@ async def start(client, message):
             else:
                 invite_link = await client.create_chat_invite_link(int(AUTH_CHANNEL))
         except Exception as e:
-            logger.error(e)
-            await message.reply_text("Make sure Bot is admin in Forcesub channel")
+            print(e)
+            await message.reply_text(script.FORCE_SUB_ADMIN_ERROR)
             return
         try:
-            btn = [[InlineKeyboardButton("Backup Channel", url=invite_link.invite_link)]]
+            btn = [[InlineKeyboardButton(script.BACKUP_CHANNEL_BTN, url=invite_link.invite_link)]]
             if message.command[1] != "subscribe":
                 if REQUEST_TO_JOIN_MODE == True:
                     if TRY_AGAIN_BTN == True:
                         try:
                             kk, file_id = message.command[1].split("_", 1)
-                            btn.append([InlineKeyboardButton("↻ Try Again", callback_data=f"checksub#{kk}#{file_id}")])
+                            btn.append([InlineKeyboardButton(script.TRY_AGAIN_BTN, callback_data=f"checksub#{kk}#{file_id}")])
                         except (IndexError, ValueError):
-                            btn.append([InlineKeyboardButton("↻ Try Again", url=f"https://t.me/{temp.U_NAME}?start={message.command[1]}")])
+                            btn.append([InlineKeyboardButton(script.TRY_AGAIN_BTN, url=f"https://t.me/{temp.U_NAME}?start={message.command[1]}")])
                 else:
                     try:
                         kk, file_id = message.command[1].split("_", 1)
-                        btn.append([InlineKeyboardButton("↻ Try Again", callback_data=f"checksub#{kk}#{file_id}")])
+                        btn.append([InlineKeyboardButton(script.TRY_AGAIN_BTN, callback_data=f"checksub#{kk}#{file_id}")])
                     except (IndexError, ValueError):
-                        btn.append([InlineKeyboardButton("↻ Try Again", url=f"https://t.me/{temp.U_NAME}?start={message.command[1]}")])
+                        btn.append([InlineKeyboardButton(script.TRY_AGAIN_BTN, url=f"https://t.me/{temp.U_NAME}?start={message.command[1]}")])
             if REQUEST_TO_JOIN_MODE == True:
                 if TRY_AGAIN_BTN == True:
-                    text = "**🕵️ You have not joined my backup channel. First join channel then try again**"
+                    text = script.BACKUP_CHANNEL_NOT_JOINED
                 else:
                     await db.set_msg_command(message.from_user.id, com=message.command[1])
-                    text = "**🕵️ You have not joined my backup channel. First join channel**"
+                    text = script.BACKUP_CHANNEL_NOT_JOINED_2
             else:
-                text = "**🕵️ You have not joined my backup channel. First join channel then try again**"
+                text = script.BACKUP_CHANNEL_NOT_JOINED
             await client.send_message(
                 chat_id=message.from_user.id,
                 text=text,
@@ -94,8 +102,8 @@ async def start(client, message):
             )
             return
         except Exception as e:
-            logger.error(e)
-            return await message.reply_text("something wrong with force subscribe.")
+            print(e)
+            return await message.reply_text(script.FORCE_SUB_ERROR)
             
     if len(message.command) == 2 and message.command[1] in ["subscribe", "error", "okay", "help"]:
         buttons = get_start_buttons()
@@ -116,7 +124,7 @@ async def start(client, message):
         file_id = data
         pre = ""
     if data.split("-", 1)[0] == "BATCH":
-        sts = await message.reply("<b>Please wait...</b>")
+        sts = await message.reply(script.PLEASE_WAIT)
         file_id = data.split("-", 1)[1]
         msgs = BATCH_FILES.get(file_id)
         if not msgs:
@@ -124,9 +132,9 @@ async def start(client, message):
             try: 
                 with open(file) as file_data:
                     msgs=json.loads(file_data.read())
-            except:
+            except Exception:
                 await sts.edit("FAILED")
-                return await client.send_message(LOG_CHANNEL, "UNABLE TO OPEN FILE.")
+                return await client.send_message(LOG_CHANNEL, script.UNABLE_TO_OPEN_FILE)
             os.remove(file)
             BATCH_FILES[file_id] = msgs
 
@@ -138,7 +146,7 @@ async def start(client, message):
             if BATCH_FILE_CAPTION:
                 try:
                     f_caption=BATCH_FILE_CAPTION.format(file_name= '' if title is None else title, file_size='' if size is None else size, file_caption='' if f_caption is None else f_caption)
-                except:
+                except Exception:
                     f_caption=f_caption
             if f_caption is None:
                 f_caption = f"{title}"
@@ -164,24 +172,20 @@ async def start(client, message):
                     reply_markup=InlineKeyboardMarkup(button)
                 )
                 filesarr.append(msg)
-            except:
+            except Exception:
                 continue
             await asyncio.sleep(1) 
         await sts.delete()
-        k = await client.send_message(chat_id = message.from_user.id, text=f"<blockquote><b><u>❗️❗️❗️IMPORTANT❗️️❗️❗️</u></b>\n\nThis message will be deleted in <b><u>10 mins</u> 🫥 <i></b>(due to copyright issues)</i>.\n\n<b><i>Please forward this message to your saved messages or any private chat.</i></b></blockquote>")
-        await asyncio.sleep(600)
-        for x in filesarr:
-            await x.delete()
-        await k.edit_text("<b>✅ Your message is successfully deleted</b>")
+        await send_auto_delete_message(client, message.from_user.id, filesarr)
         return
     
     elif data.split("-", 1)[0] == "DSTORE":
-        sts = await message.reply("<b>Please wait...</b>")
+        sts = await message.reply(script.PLEASE_WAIT)
         b_string = data.split("-", 1)[1]
         decoded = (base64.urlsafe_b64decode(b_string + "=" * (-len(b_string) % 4))).decode("ascii")
         try:
             f_msg_id, l_msg_id, f_chat_id, protect = decoded.split("_", 3)
-        except:
+        except Exception:
             f_msg_id, l_msg_id, f_chat_id = decoded.split("_", 2)
             protect = "/pbatch" if PROTECT_CONTENT else "batch"
         diff = int(l_msg_id) - int(f_msg_id)
@@ -197,7 +201,7 @@ async def start(client, message):
                 if BATCH_FILE_CAPTION:
                     try:
                         f_caption=BATCH_FILE_CAPTION.format(file_name=file_name, file_size='' if size is None else size, file_caption=f_caption)
-                    except:
+                    except Exception:
                         f_caption = getattr(msg, 'caption', '')
                 file_id = file.file_id
                 reply_markup = None
@@ -206,7 +210,7 @@ async def start(client, message):
                 except FloodWait as e:
                     await asyncio.sleep(e.value)
                     p = await msg.copy(message.chat.id, caption=f_caption, protect_content=True if protect == "/pbatch" else False, reply_markup=reply_markup)
-                except:
+                except Exception:
                     continue
             elif msg.empty:
                 continue
@@ -216,31 +220,27 @@ async def start(client, message):
                 except FloodWait as e:
                     await asyncio.sleep(e.value)
                     p = await msg.copy(message.chat.id, protect_content=True if protect == "/pbatch" else False)
-                except:
+                except Exception:
                     continue
             filesarr.append(p)
             await asyncio.sleep(1)
         await sts.delete()
-        k = await client.send_message(chat_id = message.from_user.id, text=f"<blockquote><b><u>❗️❗️❗️IMPORTANT❗️️❗️❗️</u></b>\n\nThis message will be deleted in <b><u>10 mins</u> 🫥 <i></b>(due to copyright issues)</i>.\n\n<b><i>Please forward this message to your saved messages or any private chat.</i></b></blockquote>")
-        await asyncio.sleep(600)
-        for x in filesarr:
-            await x.delete()
-        await k.edit_text("<b>✅ Your message is successfully deleted</b>")
+        await send_auto_delete_message(client, message.from_user.id, filesarr)
         return
 
     elif data.split("-", 1)[0] == "verify":
         userid = data.split("-", 2)[1]
         token = data.split("-", 3)[2]
         if str(message.from_user.id) != str(userid):
-            return await message.reply_text(text="<b>Invalid link or expired link</b>", protect_content=True)
+            return await message.reply_text(text=script.INVALID_LINK, protect_content=True)
         is_valid = await check_token(client, userid, token)
         if is_valid == True:
-            text = "<b>Hey {} 👋,\n\nYou have completed the verification...\n\nNow you have unlimited access till today now enjoy\n\n</b>"
+            text = script.VERIFY_SUCCESS
 
             await message.reply_text(text=text.format(message.from_user.mention), protect_content=True)
             await verify_user(client, userid, token)
         else:
-            return await message.reply_text(text="<b>Invalid link or expired link</b>", protect_content=True)
+            return await message.reply_text(text=script.INVALID_LINK, protect_content=True)
             
     if data.startswith("sendfiles"):
         chat_id = int("-" + file_id.split("-")[1])
@@ -253,11 +253,11 @@ async def start(client, message):
         ]]
         if settings['tutorial']:
             btn.append([InlineKeyboardButton('How To Download', url=await get_tutorial(chat_id))])
-        text = "<b>✅ Your file ready click on download now button then open link to get file\n\n</b>"
+        text = script.FILE_READY
 
         k = await client.send_message(chat_id=message.from_user.id, text=text, reply_markup=InlineKeyboardMarkup(btn))
         await asyncio.sleep(300)
-        await k.edit("<b>✅ Your message is successfully deleted</b>")
+        await k.edit(script.MSG_DELETED)
         return
         
     
@@ -272,17 +272,17 @@ async def start(client, message):
         ]]
         if settings['tutorial']:
             btn.append([InlineKeyboardButton('How To Download', url=await get_tutorial(chat_id))])
-        text = "<b>✅ Your file ready click on download now button then open link to get file\n\n</b>"
+        text = script.FILE_READY
 
         k = await client.send_message(chat_id=user, text=text, reply_markup=InlineKeyboardMarkup(btn))
         await asyncio.sleep(1200)
-        await k.edit("<b>✅ Your message is successfully deleted</b>")
+        await k.edit(script.MSG_DELETED)
         return
         
     elif data.startswith("all"):
         files = temp.GETALL.get(file_id)
         if not files:
-            return await message.reply('<b><i>No such file exist.</b></i>')
+            return await message.reply(script.NO_FILE_EXIST)
         filesarr = []
         for file in files:
             file_id = file["file_id"]
@@ -293,7 +293,7 @@ async def start(client, message):
             if CUSTOM_FILE_CAPTION:
                 try:
                     f_caption=CUSTOM_FILE_CAPTION.format(file_name= '' if title is None else title, file_size='' if size is None else size, file_caption='' if f_caption is None else f_caption)
-                except:
+                except Exception:
                     f_caption=f_caption
             if f_caption is None:
                 f_caption = f"{' '.join(filter(lambda x: not x.startswith('[') and not x.startswith('@'), files1['file_name'].split()))}"
@@ -303,7 +303,7 @@ async def start(client, message):
                 ],[
                     InlineKeyboardButton("How To Verify", url=VERIFY_TUTORIAL)
                 ]]
-                text = "<b>Hey {} 👋,\n\nYou are not verified today, please click on verify & get unlimited access for today</b>"
+                text = script.VERIFY_MSG
 
                 await message.reply_text(
                     text=text.format(message.from_user.mention),
@@ -319,17 +319,13 @@ async def start(client, message):
                 reply_markup=reply_markup
             )
             filesarr.append(msg)
-        k = await client.send_message(chat_id = message.from_user.id, text=f"<blockquote><b><u>❗️❗️❗️IMPORTANT❗️️❗️❗️</u></b>\n\nThis message will be deleted in <b><u>10 mins</u> 🫥 <i></b>(due to copyright issues)</i>.\n\n<b><i>Please forward this message to your saved messages or any private chat.</i></b></blockquote>")
-        await asyncio.sleep(600)
-        for x in filesarr:
-            await x.delete()
-        await k.edit_text("<b>✅ Your message is successfully deleted</b>")
+        await send_auto_delete_message(client, message.from_user.id, filesarr)
         return    
         
     elif data.startswith("files"):
         user = message.from_user.id
         if temp.SHORT.get(user)==None:
-            await message.reply_text(text="<b>Please Search Again in Group</b>")
+            await message.reply_text(text=script.SEARCH_AGAIN)
         else:
             chat_id = temp.SHORT.get(user)
         settings = await get_settings(chat_id)
@@ -341,11 +337,11 @@ async def start(client, message):
             ]]
             if settings['tutorial']:
                 btn.append([InlineKeyboardButton('How To Download', url=await get_tutorial(chat_id))])
-            text = "<b>✅ Your file ready click on download now button then open link to get file\n\n</b>"
+            text = script.FILE_READY
 
             k = await client.send_message(chat_id=message.from_user.id, text=text, reply_markup=InlineKeyboardMarkup(btn))
             await asyncio.sleep(1200)
-            await k.edit("<b>✅ Your message is successfully deleted</b>")
+            await k.edit(script.MSG_DELETED)
             return
     user = message.from_user.id
     files_ = await get_file_details(file_id)           
@@ -358,7 +354,7 @@ async def start(client, message):
                 ],[
                     InlineKeyboardButton("How To Verify", url=VERIFY_TUTORIAL)
                 ]]
-                text = "<b>Hey {} 👋,\n\nYou are not verified today, please click on verify & get unlimited access for today</b>"
+                text = script.VERIFY_MSG
 
                 await message.reply_text(
                     text=text.format(message.from_user.mention),
@@ -381,18 +377,18 @@ async def start(client, message):
             if CUSTOM_FILE_CAPTION:
                 try:
                     f_caption=CUSTOM_FILE_CAPTION.format(file_name= '' if title is None else title, file_size='' if size is None else size, file_caption='')
-                except:
+                except Exception:
                     return
             await msg.edit_caption(caption=f_caption)
-            btn = [[InlineKeyboardButton("✅ Get File Again ✅", callback_data=f'del#{file_id}')]]
-            k = await msg.reply(text=f"<blockquote><b><u>❗️❗️❗️IMPORTANT❗️️❗️❗️</u></b>\n\nThis File will be deleted in <b><u>10 mins</u> 🫥 <i></b>(Due To copyright issues)</i>.\n\n<b><i>Forward this message to saved messages to download it later.</i></b></blockquote>")
+            btn = [[InlineKeyboardButton(script.GET_FILE_AGAIN, callback_data=f'del#{file_id}')]]
+            k = await msg.reply(text=script.IMPORTANT_DELETE_MSG)
             await asyncio.sleep(600)
             await msg.delete()
-            await k.edit_text("<b>✅ File Deleted, If you want the file CLick on below button.</b>",reply_markup=InlineKeyboardMarkup(btn))
+            await k.edit_text(script.FILE_DELETED_BTN,reply_markup=InlineKeyboardMarkup(btn))
             return
-        except:
+        except Exception:
             pass
-        return await message.reply('No such file exist.')
+        return await message.reply(script.NO_FILE_EXIST)
     files = files_
     title = files["file_name"]
     size=get_size(files["file_size"])
@@ -410,7 +406,7 @@ async def start(client, message):
         ],[
             InlineKeyboardButton("How To Verify", url=VERIFY_TUTORIAL)
         ]]
-        text = "<b>Hey {} 👋,\n\nYou are not verified today, please click on verify & get unlimited access for today</b>"
+        text = script.VERIFY_MSG
 
         await message.reply_text(
             text=text.format(message.from_user.mention),
@@ -426,11 +422,11 @@ async def start(client, message):
         protect_content=True if pre == 'filep' else False,
         reply_markup=reply_markup
     )
-    btn = [[InlineKeyboardButton("✅ Get File Again ✅", callback_data=f'del#{file_id}')]]
-    k = await msg.reply(text=f"<blockquote><b><u>❗️❗️❗️IMPORTANT❗️️❗️❗️</u></b>\n\nThis File will be deleted in <b><u>10 mins</u> 🫥 <i></b>(Due To copyright issues)</i>.\n\n<b><i>Forward this message to saved messages to download it later.</i></b></blockquote>")
+    btn = [[InlineKeyboardButton(script.GET_FILE_AGAIN, callback_data=f'del#{file_id}')]]
+    k = await msg.reply(text=script.IMPORTANT_DELETE_MSG)
     await asyncio.sleep(600)
     await msg.delete()
-    await k.edit_text("<b>✅ File Deleted, If you want the file CLick on below button.</b>",reply_markup=InlineKeyboardMarkup(btn))
+    await k.edit_text(script.FILE_DELETED_BTN,reply_markup=InlineKeyboardMarkup(btn))
     return   
 
 @Client.on_message(filters.command('channel') & filters.user(ADMINS))
@@ -1089,7 +1085,7 @@ async def removetutorial(bot, message):
 
 @Client.on_message(filters.command("restart") & filters.user(ADMINS))
 async def stop_button(bot, message):
-    msg = await bot.send_message(text="**🔄 𝙿𝚁𝙾𝙲𝙴𝚂𝚂𝙴𝚂 𝚂𝚃𝙾𝙿𝙴𝙳. 𝙱𝙾𝚃 𝙸𝚂 𝚁𝙴𝚂𝚃𝙰𝚁𝙻𝙾𝙽𝙶...**", chat_id=message.chat.id)       
+    msg = await bot.send_message(text="**🔄 𝙿𝚁𝙾𝙲𝙴𝚂𝚂𝙴𝚂 𝚂𝚃𝙾𝙿𝙴𝙳. 𝙱𝙾𝚃 𝙸𝚂 𝚁𝙴𝚂𝚃𝙰𝚁��𝙶...**", chat_id=message.chat.id)       
     await asyncio.sleep(3)
     await msg.edit("**✅️ 𝙱𝙾𝚃 𝙸𝚂 𝚁𝙴𝚂𝚃𝙰𝚝𝙴𝙳. 𝙽𝙾𝚆 𝚈𝙾𝚄 𝙲𝙰𝙽 𝚄𝚂𝙴 𝙼𝙴**")
     os.execl(sys.executable, sys.executable, *sys.argv)

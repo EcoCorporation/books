@@ -75,11 +75,6 @@ SUPPORT_CHAT = environ.get('SUPPORT_CHAT', 'codeconvo') # Support Chat Link With
 OWNER_LNK = environ.get('OWNER_LNK', 'https://t.me/ebookguy')
 
 # Affiliate Links
-BTN_LABEL_1 = environ.get('BTN_LABEL_1', '🔥 Our Main Channel 🔥')
-BTN_LABEL_2 = environ.get('BTN_LABEL_2', '📚 How to Search Book Properly')
-BTN_LABEL_3 = environ.get('BTN_LABEL_3', '🔥 Fat Burning Kitchen')
-BTN_LABEL_4 = environ.get('BTN_LABEL_4', '💖 His Secret Obsession')
-
 BTN_URL_2 = environ.get('BTN_URL_2', 'https://t.me/EbookGuy/14')
 BTN_URL_3 = environ.get('BTN_URL_3', 'https://d6416ego1cnb1m0bqdoan-wv3h.hop.clickbank.net')
 BTN_URL_4 = environ.get('BTN_URL_4', 'https://6b61fbsc-elbfs1gnqwbkifpbr.hop.clickbank.net/?cbpage=1')

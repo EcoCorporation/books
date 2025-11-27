@@ -8,13 +8,15 @@ COPY requirements.txt /requirements.txt
 
 RUN cd /
 RUN pip3 install -U pip && pip3 install -U -r requirements.txt
-RUN mkdir /app
+
 RUN useradd -m -u 1000 user
-USER user
-ENV HOME=/home/user \
-    PATH=/home/user/.local/bin:$PATH
 
 WORKDIR /app
-COPY --chown=user:user . /app
+COPY . /app
+
+RUN chown -R user:user /app && chmod -R 755 /app
+
+USER user
+
 EXPOSE 8080
 CMD ["python", "bot.py"]
