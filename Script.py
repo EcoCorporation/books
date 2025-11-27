@@ -242,3 +242,11 @@ Example:- /set_caption 📕 File Name: {filename}
     
     UNMUTE_TEXT = "👋 Hello {},\n\nPlease join the channel then click on unmute me button. 😇"
     SUPPORT_GROUP_TEXT = "<b>Hey {}, {} results are found in my database for your query {}. \n\nThis is a support group so that you can't get files from here...\n\nJoin and Search Here - {}</b>"
+    NO_RESULTS_MSG = """<b>❌ No Results Found</b>
+
+We couldn't find <b>"{}"</b> in our database.
+
+<b>👇 Try these steps:</b>
+1. Check spelling on <a href="https://www.google.com/search?q={}+book">Google</a>.
+2. Search for the <b>Author</b> instead.
+3. Still can't find it? Type <code>/request {}</code> to notify admins."""

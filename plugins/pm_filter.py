@@ -915,7 +915,13 @@ async def auto_filter(client, name, msg, reply_msg, ai_search):
         files, offset, total_results = await get_search_results(message.chat.id ,search, offset=0, filter=True)
         settings = await get_settings(message.chat.id)
         if not files:
-            return await reply_msg.edit_text(f"**⚠️ No File Found For Your Query - {name}**\n**Make Sure Spelling Is Correct.**")
+            google_search_url = f"https://www.google.com/search?q={quote_plus(name)}+book"
+            btn = [[InlineKeyboardButton("🔍 Check Spelling on Google", url=google_search_url)]]
+            return await reply_msg.edit_text(
+                text=script.NO_RESULTS_MSG.format(name, name, name),
+                reply_markup=InlineKeyboardMarkup(btn),
+                disable_web_page_preview=True
+            )
     else:
         return
     pre = 'filep' if settings['file_secure'] else 'file'
