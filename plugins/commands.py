@@ -16,20 +16,23 @@ logger = logging.getLogger(__name__)
 BATCH_FILES = {}
 join_db = JoinReqs
 
+def get_start_buttons():
+    buttons = [[
+        InlineKeyboardButton(script.BTN_LABEL_1, url=CHNL_LNK)
+    ],[
+        InlineKeyboardButton(script.BTN_LABEL_2, url=BTN_URL_2)
+    ],[
+        InlineKeyboardButton(script.BTN_LABEL_3, url=BTN_URL_3)
+    ],[
+        InlineKeyboardButton(script.BTN_LABEL_4, url=BTN_URL_4)
+    ]]
+    return buttons
+
 @Client.on_message(filters.command("start") & filters.incoming)
 async def start(client, message):
     print("DEBUG: Start command triggered")
     if message.chat.type in [enums.ChatType.GROUP, enums.ChatType.SUPERGROUP]:
-        buttons = [[
-        InlineKeyboardButton('🔥 Our Main Channel 🔥', url=CHNL_LNK)
-    ],[
-        InlineKeyboardButton('📚 How to Search Book Properly', url=BTN_URL_2)
-    ],[
-        InlineKeyboardButton('🔥 Fat Burning Kitchen', url=BTN_URL_3)
-    ],[
-        InlineKeyboardButton('💖 His Secret Obsession', url=BTN_URL_4)
-    ]]
-        reply_markup = InlineKeyboardMarkup(buttons)
+        reply_markup = InlineKeyboardMarkup(get_start_buttons())
         await message.reply(script.START_TXT.format(message.from_user.mention if message.from_user else message.chat.title, temp.U_NAME, temp.B_NAME), reply_markup=reply_markup, disable_web_page_preview=True)
         await asyncio.sleep(2) # 😢 https://github.com/EvamariaTG/EvaMaria/blob/master/plugins/p_ttishow.py#L17 😬 wait a bit, before checking.
         if not await db.get_chat(message.chat.id):
@@ -41,17 +44,7 @@ async def start(client, message):
         await db.add_user(message.from_user.id, message.from_user.first_name)
         await client.send_message(LOG_CHANNEL, script.LOG_TEXT_P.format(message.from_user.id, message.from_user.mention))
     if len(message.command) != 2:
-        buttons = [[
-        InlineKeyboardButton('🔥 Our Main Channel 🔥', url=CHNL_LNK)
-    ],[
-        InlineKeyboardButton('📚 How to Search Book Properly', url=BTN_URL_2)
-    ],[
-        InlineKeyboardButton('🔥 Fat Burning Kitchen', url=BTN_URL_3)
-    ],[
-        InlineKeyboardButton('💖 His Secret Obsession', url=BTN_URL_4)
-    ]]
-
-        reply_markup = InlineKeyboardMarkup(buttons)
+        reply_markup = InlineKeyboardMarkup(get_start_buttons())
         await message.reply_photo(
             photo=random.choice(PICS),
             caption=script.START_TXT.format(message.from_user.mention, temp.U_NAME, temp.B_NAME),
@@ -106,9 +99,7 @@ async def start(client, message):
             return await message.reply_text(script.FORCE_SUB_ERROR)
             
     if len(message.command) == 2 and message.command[1] in ["subscribe", "error", "okay", "help"]:
-        buttons = get_start_buttons()
-
-        reply_markup = InlineKeyboardMarkup(buttons)      
+        reply_markup = InlineKeyboardMarkup(get_start_buttons())      
         await message.reply_photo(
             photo=random.choice(PICS),
             caption=script.START_TXT.format(message.from_user.mention, temp.U_NAME, temp.B_NAME),
