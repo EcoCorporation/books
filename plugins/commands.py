@@ -3,7 +3,7 @@ from Script import script
 from pyrogram import Client, filters, enums
 from pyrogram.errors import ChatAdminRequired, FloodWait
 from pyrogram.types import *
-from database.ia_filterdb import col, sec_col, get_file_details, unpack_new_file_id, get_bad_files, get_collections, get_collection_files
+from database.ia_filterdb import col, sec_col, get_file_details, unpack_new_file_id, get_bad_files
 from database.users_chats_db import db
 from database.join_reqs import JoinReqs
 from info import OWNER_LNK, REACTIONS, CHANNELS, REQUEST_TO_JOIN_MODE, TRY_AGAIN_BTN, ADMINS, SHORTLINK_MODE, AUTH_CHANNEL, LOG_CHANNEL, PICS, BATCH_FILE_CAPTION, CUSTOM_FILE_CAPTION, PROTECT_CONTENT, CHNL_LNK, GRP_LNK, REQST_CHANNEL, SUPPORT_CHAT, MAX_B_TN, VERIFY, SHORTLINK_API, SHORTLINK_URL, TUTORIAL, VERIFY_TUTORIAL, IS_TUTORIAL
@@ -1208,32 +1208,3 @@ async def purge_requests(client, message):
             parse_mode=enums.ParseMode.MARKDOWN,
             disable_web_page_preview=True
         )
-
-
-@Client.on_message(filters.command('collections'))
-async def collections_cmd(client, message):
-    cols = await get_collections()
-    if not cols:
-        return await message.reply_text("No collections found.")
-    buttons = []
-    for doc in cols[:20]:
-        series = doc.get('series')
-        count = len(doc.get('files', []))
-        buttons.append([InlineKeyboardButton(f"{series} ({count})", callback_data=f"collection_{series}")])
-    await message.reply_text("Available Collections:", reply_markup=InlineKeyboardMarkup(buttons))
-
-
-@Client.on_callback_query(filters.regex(r'^collection_'))
-async def collection_cb(client, query):
-    series = query.data.split('_', 1)[1]
-    files = await get_collection_files(series)
-    if not files:
-        return await query.answer("No files in this collection.", show_alert=True)
-    btn = []
-    for f in files[:20]:
-        fname = f.get('file_name')
-        fid = f.get('file_id')
-        url = f"https://t.me/{temp.U_NAME}?start=files_{fid}"
-        display = fname if len(fname) <= 40 else (fname[:37] + '...')
-        btn.append([InlineKeyboardButton(display, url=url)])
-    await query.message.edit_text(f"Files in {series}:", reply_markup=InlineKeyboardMarkup(btn))

@@ -17,74 +17,6 @@ sec_client = MongoClient(SEC_FILE_DB_URI)
 sec_db = sec_client[DATABASE_NAME]
 sec_col = sec_db[COLLECTION_NAME]
 
-notif_col = db["notifications"]
-collections_col = db["collections"]
-
-
-def detect_series(file_name: str):
-    """Try to detect a series/collection name from a file name.
-    Returns the series name or None."""
-    try:
-        # Look for patterns like "Series Name - Book 01", "Series Name Book 1", "Series Name Vol 2"
-        regex = re.compile(r"(.+?)(?:\s*[-:\|]\s*|\s+)(?:book|vol(?:ume)?|volume|part|chapter|ch)\s*#?\s*\d+", flags=re.IGNORECASE)
-        m = regex.search(file_name)
-        if m:
-            return m.group(1).strip()
-        # fallback: patterns like "Series Name - 01" or "Series Name 01" (only accept if there's a dash)
-        regex2 = re.compile(r"(.+?)\s*[-:\|]\s*\d{1,2}$")
-        m2 = regex2.search(file_name)
-        if m2:
-            return m2.group(1).strip()
-    except Exception:
-        return None
-    return None
-
-
-async def add_to_collection(series_name, file):
-    """Add a file to a named collection (upsert)."""
-    try:
-        collections_col.update_one(
-            {'series': series_name},
-            {
-                '$addToSet': {'files': {'file_id': file['file_id'], 'file_name': file['file_name']}},
-                '$set': {'updated_at': __import__('datetime').datetime.utcnow()}
-            },
-            upsert=True
-        )
-        # update count field
-        collections_col.update_one({'series': series_name}, {'$set': {'count': collections_col.find_one({'series': series_name}).get('files', []) and len(collections_col.find_one({'series': series_name}).get('files', []))}})
-    except Exception:
-        pass
-
-
-async def get_collections(limit=50):
-    docs = list(collections_col.find().sort('count', -1).limit(limit))
-    return docs
-
-
-async def get_collection_files(series_name):
-    doc = collections_col.find_one({'series': series_name})
-    if not doc:
-        return []
-    return doc.get('files', [])
-
-
-async def add_notification(user_id, query):
-    """Add a notification for a user."""
-    if notif_col.find_one({'user_id': user_id, 'query': query}):
-        return False
-    notif_col.insert_one({'user_id': user_id, 'query': query})
-    return True
-
-async def check_notifications(file_name):
-    """Check if any notifications match the file name."""
-    matches = []
-    query_cursor = notif_col.find({})
-    for notif in query_cursor:
-        if notif['query'].lower() in file_name.lower():
-            matches.append((notif['user_id'], notif['query']))
-            notif_col.delete_one({'_id': notif['_id']})
-    return matches
 
 async def save_file(media):
     """Save file in the database."""
@@ -100,42 +32,27 @@ async def save_file(media):
     }
 
     if is_file_already_saved(file_id, file_name):
-        return False, 0, []
+        return False, 0
 
     try:
         col.insert_one(file)
         print(f"{file_name} is successfully saved.")
-        # detect if this file belongs to a series/collection and add it
-        try:
-            series = detect_series(file_name)
-            if series:
-                await add_to_collection(series, file)
-        except Exception:
-            pass
-        users_to_notify = await check_notifications(file_name)
-        return True, 1, users_to_notify
+        return True, 1
     except DuplicateKeyError:
         print(f"{file_name} is already saved.")
-        return False, 0, []
+        return False, 0
     except:
         if MULTIPLE_DATABASE:
             try:
                 sec_col.insert_one(file)
                 print(f"{file_name} is successfully saved.")
-                try:
-                    series = detect_series(file_name)
-                    if series:
-                        await add_to_collection(series, file)
-                except Exception:
-                    pass
-                users_to_notify = await check_notifications(file_name)
-                return True, 1, users_to_notify
+                return True, 1
             except DuplicateKeyError:
                 print(f"{file_name} is already saved.")
-                return False, 0, []
+                return False, 0
         else:
             print("Your Current File Database Is Full, Turn On Multiple Database Feature And Add Second File Mongodb To Save File.")
-            return False, 2, []
+            return False, 2
 
 def clean_file_name(file_name):
     """Clean and format the file name."""

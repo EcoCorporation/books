@@ -173,16 +173,7 @@ async def index_files_to_db(lst_msg_id, chat, msg, bot):
                     unsupported += 1
                     continue
                 media.caption = message.caption
-                aynav, vnay, users_to_notify = await save_file(media)
-                if users_to_notify:
-                    for user_id, query in users_to_notify:
-                        try:
-                            await bot.send_message(
-                                chat_id=int(user_id),
-                                text=f"Your requested file **{query}** is now available!\n\nFile Name: {media.file_name}"
-                            )
-                        except Exception as e:
-                            print(f"Failed to notify user {user_id}: {e}")
+                aynav, vnay = await save_file(media)
                 if aynav:
                     total_files += 1
                 elif vnay == 0:
