@@ -112,8 +112,10 @@ VERIFY_SND_SHORTLINK_API = environ.get('VERIFY_SND_SHORTLINK_API', '')
 
 # Shortlink Info
 SHORTLINK_MODE = bool(environ.get('SHORTLINK_MODE', True)) # Set True Or False
-SHORTLINK_URL = environ.get('SHORTLINK_URL', 'exe.io')
-SHORTLINK_API = environ.get('SHORTLINK_API', '8d02c821896fcf8c06a4b03081c1f433fa8805d0')
+# SHORTLINK_URL = environ.get('SHORTLINK_URL', 'exe.io')
+SHORTLINK_URL = environ.get('SHORTLINK_URL', 'shortener-ozkc.onrender.com')
+# SHORTLINK_API = environ.get('SHORTLINK_API', '8d02c821896fcf8c06a4b03081c1f433fa8805d0')
+SHORTLINK_API = environ.get('SHORTLINK_API', '1f9180e7c06e30e50518e1f23a988c4edeada3dc2f8403324aa7b50d135b36cd')
 TUTORIAL = environ.get('TUTORIAL', 'https://t.me/tutorialtopass/7') # How Open Shortner Link Video Link , Channel Link Where You Upload Your Video.
 
 
