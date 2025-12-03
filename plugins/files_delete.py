@@ -6,7 +6,7 @@ from info import DELETE_CHANNELS
 from database.ia_filterdb import col, sec_col, unpack_new_file_id
 
 logger = logging.getLogger(__name__)
-media_filter = filters.document | filters.video
+media_filter = filters.document | filters.video | filters.audio
 
 @Client.on_message(filters.chat(DELETE_CHANNELS) & media_filter)
 async def deletemultiplemedia(bot, message):
