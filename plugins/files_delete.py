@@ -34,7 +34,7 @@ async def deletemultiplemedia(bot, message):
         else:
             return
 
-        file_id, file_ref = unpack_new_file_id(media.file_id)
+        file_id = unpack_new_file_id(media.file_id)
         file_name = getattr(media, 'file_name', 'Unknown')
         file_size = get_size(media.file_size)
         total_deleted = 0
