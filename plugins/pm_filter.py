@@ -141,12 +141,22 @@ async def next_page(bot, query):
         offset = int(offset)
     except:
         offset = 0
-    search = FRESH.get(key)
-    if not search:
+    
+    # FRESH now stores dict with 'query' and 'format_type'
+    fresh_data = FRESH.get(key)
+    if not fresh_data:
         await query.answer(script.OLD_ALRT_TXT.format(query.from_user.first_name),show_alert=True)
         return
+    
+    # Handle both old format (string) and new format (dict)
+    if isinstance(fresh_data, dict):
+        search = fresh_data.get('query')
+        format_type = fresh_data.get('format_type')
+    else:
+        search = fresh_data
+        format_type = None
 
-    files, n_offset, total = await get_search_results(query.message.chat.id, search, offset=offset, filter=True)
+    files, n_offset, total = await get_search_results(query.message.chat.id, search, offset=offset, filter=True, format_type=format_type)
     try:
         n_offset = int(n_offset)
     except:
@@ -1060,7 +1070,8 @@ async def auto_filter(client, name, msg, reply_msg, ai_search, format_type=None)
     pre = 'filep' if settings['file_secure'] else 'file'
     key = f"{message.chat.id}-{message.id}"
     req = message.from_user.id if message.from_user else 0
-    FRESH[key] = search
+    # Store both search query and format_type for pagination
+    FRESH[key] = {'query': search, 'format_type': format_type}
     temp.GETALL[key] = files
     temp.SHORT[message.from_user.id] = message.chat.id
     if settings["button"]:
