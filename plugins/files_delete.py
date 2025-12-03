@@ -8,13 +8,26 @@ from database.ia_filterdb import col, sec_col, unpack_new_file_id
 from utils import get_size
 
 logger = logging.getLogger(__name__)
-media_filter = filters.document | filters.video | filters.audio
+logger.setLevel(logging.INFO)
+
+# Debug: Print DELETE_CHANNELS on load
+print(f"[files_delete.py] DELETE_CHANNELS loaded: {DELETE_CHANNELS}")
+
+# Check if DELETE_CHANNELS is valid
+if not DELETE_CHANNELS or DELETE_CHANNELS == ['']:
+    print("[files_delete.py] WARNING: DELETE_CHANNELS is empty! File delete feature disabled.")
+    media_filter = filters.document | filters.video | filters.audio
+else:
+    media_filter = filters.document | filters.video | filters.audio
+    print(f"[files_delete.py] File delete handler active for channels: {DELETE_CHANNELS}")
 
 @Client.on_message(filters.chat(DELETE_CHANNELS) & media_filter)
 async def deletemultiplemedia(bot, message):
     """Delete files from database when sent to delete channel"""
+    try:
+        print(f"[files_delete.py] Handler triggered! Chat: {message.chat.id}, Type: {message.chat.type}")
 
-    for file_type in ("document", "video", "audio"):
+        for file_type in ("document", "video", "audio"):
         media = getattr(message, file_type, None)
         if media is not None:
             break
@@ -61,12 +74,20 @@ async def deletemultiplemedia(bot, message):
             reply_text = f"✅ <b>File Deleted Successfully!</b>\n\n📁 <code>{file_name}</code>\n💾 Size: {file_size}"
         else:
             reply_text = f"✅ <b>{total_deleted} Files Deleted!</b>\n\n📁 <code>{file_name}</code>\n💾 Size: {file_size}\n\n<i>ℹ️ Multiple duplicates were removed</i>"
-        logger.info(f'Deleted {total_deleted} file(s): {file_name}')
+        print(f'[files_delete.py] Deleted {total_deleted} file(s): {file_name}')
     else:
         reply_text = f"❌ <b>File Not Found in Database</b>\n\n📁 <code>{file_name}</code>\n💾 Size: {file_size}\n\n<i>This file may have already been deleted or was never indexed.</i>"
-        logger.info(f'File not found in database: {file_name}')
+        print(f'[files_delete.py] File not found in database: {file_name}')
     
-    await message.reply_text(reply_text)
+    try:
+        await message.reply_text(reply_text)
+    except Exception as e:
+        print(f"[files_delete.py] Error sending reply: {e}")
+
+    except Exception as e:
+        print(f"[files_delete.py] ERROR in delete handler: {e}")
+        import traceback
+        traceback.print_exc()
 
 
 @Client.on_message(filters.command("duplicates") & filters.user(ADMINS))
