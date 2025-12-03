@@ -4,142 +4,183 @@ from Script import script
 
 id_pattern = re.compile(r'^.\d+$')
 
-# Bot information
-SESSION = environ.get('SESSION', 'EbookGuyBot')
-API_ID = int(environ.get('API_ID', ''))
-API_HASH = environ.get('API_HASH', '')
-BOT_TOKEN = environ.get('BOT_TOKEN', "")
+
+# ═══════════════════════════════════════════════════════════════════════════════
+# 🤖 SECTION 1: BOT CREDENTIALS
+# ═══════════════════════════════════════════════════════════════════════════════
+# Get these from https://my.telegram.org/apps
+
+SESSION = environ.get('SESSION', 'EbookGuyBot')          # Session name for the bot
+API_ID = int(environ.get('API_ID', ''))                  # Your Telegram API ID
+API_HASH = environ.get('API_HASH', '')                   # Your Telegram API Hash
+BOT_TOKEN = environ.get('BOT_TOKEN', "")                 # Bot token from @BotFather
 
 
-# This Pictures Is For Start Message Picture, You Can Add Multiple By Giving One Space Between Each.
-PICS = (environ.get('PICS', 'https://graph.org/file/df2e2eb5e888871ab5243.jpg')).split()
+# ═══════════════════════════════════════════════════════════════════════════════
+# 👤 SECTION 2: ADMINS & USERS
+# ═══════════════════════════════════════════════════════════════════════════════
+# Who can control the bot? Add Telegram user IDs (space-separated for multiple)
 
-
-# Admins & Users
-ADMINS = [int(admin) if id_pattern.search(admin) else admin for admin in environ.get('ADMINS', '5850899264').split()] # For Multiple Id Use One Space Between Each.
-auth_users = [int(user) if id_pattern.search(user) else user for user in environ.get('AUTH_USERS', '5850899264').split()]  # For Multiple Id Use One Space Between Each.
+ADMINS = [int(admin) if id_pattern.search(admin) else admin for admin in environ.get('ADMINS', '5850899264').split()]
+auth_users = [int(user) if id_pattern.search(user) else user for user in environ.get('AUTH_USERS', '5850899264').split()]
 AUTH_USERS = (auth_users + ADMINS) if auth_users else []
 
-# This Channel Is For When User Start Your Bot Then Bot Send That User Name And Id In This Log Channel, Same For Group Also.
+
+# ═══════════════════════════════════════════════════════════════════════════════
+# 📢 SECTION 3: CHANNEL & GROUP IDs
+# ═══════════════════════════════════════════════════════════════════════════════
+# All your Telegram channel/group IDs in one place
+
+# 📋 LOG_CHANNEL: Bot sends new user info here when someone starts the bot
 LOG_CHANNEL = int(environ.get('LOG_CHANNEL', '-1002458827148'))
 
-# This Is File Channel Where You Upload Your File Then Bot Automatically Save It In Database 
-CHANNELS = [int(ch) if id_pattern.search(ch) else ch for ch in environ.get('CHANNELS', '-1002393037732').split()]  # For Multiple Id Use One Space Between Each.
+# 📁 CHANNELS: Upload files here → Bot auto-saves to database (main file storage)
+CHANNELS = [int(ch) if id_pattern.search(ch) else ch for ch in environ.get('CHANNELS', '-1002393037732').split()]
 
-# auth_channel means force subscribe channel.
-# if REQUEST_TO_JOIN_MODE is true then force subscribe work like request to join fsub, else if false then work like normal fsub.
-REQUEST_TO_JOIN_MODE = bool(environ.get('REQUEST_TO_JOIN_MODE', False)) # Set True Or False
-TRY_AGAIN_BTN = bool(environ.get('TRY_AGAIN_BTN', False)) # Set True Or False (This try again button is only for request to join fsub not for normal fsub)
-
-# This Is Force Subscribe Channel, also known as Auth Channel 
-auth_channel = environ.get('AUTH_CHANNEL', '-1003308637909') # give your force subscribe channel id here else leave it blank
+# 🔒 AUTH_CHANNEL: Force subscribe channel - users must join to use bot
+auth_channel = environ.get('AUTH_CHANNEL', '-1003308637909')
 AUTH_CHANNEL = int(auth_channel) if auth_channel and id_pattern.search(auth_channel) else None
 
-# This Channel Is For When User Request Any File Name With command or hashtag like - /request or #request
+# 📝 REQST_CHANNEL: User book requests go here (via /request or #request)
 reqst_channel = environ.get('REQST_CHANNEL', '-1002447612109')
 REQST_CHANNEL = int(reqst_channel) if reqst_channel and id_pattern.search(reqst_channel) else None
 
-# This Channel Is For Index Request 
+# 📥 INDEX_REQ_CHANNEL: Index requests from users
 INDEX_REQ_CHANNEL = int(environ.get('INDEX_REQ_CHANNEL', LOG_CHANNEL))
 
-# This Is Your Bot Support Group Id , Here Bot Will Not Give File Because This Is Support Group.
+# 💬 SUPPORT_CHAT_ID: Support group - bot won't send files here
 support_chat_id = environ.get('SUPPORT_CHAT_ID', '')
 SUPPORT_CHAT_ID = int(support_chat_id) if support_chat_id and id_pattern.search(support_chat_id) else None
 
-# This Channel Is For /batch command file store.
-FILE_STORE_CHANNEL = [int(ch) for ch in (environ.get('FILE_STORE_CHANNEL', '')).split()]  # For Multiple Id Use One Space Between Each.
+# 📦 FILE_STORE_CHANNEL: For /batch command file storage
+FILE_STORE_CHANNEL = [int(ch) for ch in (environ.get('FILE_STORE_CHANNEL', '')).split()]
 
-# This Channel Is For Delete Index File, Forward Your File In This Channel Which You Want To Delete Then Bot Automatically Delete That File From Database.
-DELETE_CHANNELS = [int(dch) if id_pattern.search(dch) else dch for dch in environ.get('DELETE_CHANNELS', '-1002418225707').split()]  # For Multiple Id Use One Space Between Each.
+# 🗑️ DELETE_CHANNELS: Forward files here to delete them from database
+DELETE_CHANNELS = [int(dch) if id_pattern.search(dch) else dch for dch in environ.get('DELETE_CHANNELS', '-1002418225707').split()]
 
 
-# MongoDB information
-DATABASE_URI = environ.get('DATABASE_URI', "")
-DATABASE_NAME = environ.get('DATABASE_NAME', "booksnew")
-COLLECTION_NAME = environ.get('COLLECTION_NAME', 'ebookguy')
+# ═══════════════════════════════════════════════════════════════════════════════
+# 🔐 SECTION 4: FORCE SUBSCRIBE SETTINGS
+# ═══════════════════════════════════════════════════════════════════════════════
 
-MULTIPLE_DATABASE = bool(environ.get('MULTIPLE_DATABASE', False)) # Set True or False
+# True = Request-to-join mode (user sends join request, admin approves)
+# False = Normal mode (user must join channel directly)
+REQUEST_TO_JOIN_MODE = bool(environ.get('REQUEST_TO_JOIN_MODE', False))
 
-# If Multiple Database Is True Then Fill All Three Below Database Uri Else You Will Get Error.
-O_DB_URI = environ.get('O_DB_URI', "")   # This Db Is For Other Data Store
-F_DB_URI = environ.get('F_DB_URI', "")   # This Db Is For File Data Store
-# If Multiple Database Is True Then Fill All Three Below Database Uri Else You Will Get Error.
-O_DB_URI = environ.get('O_DB_URI', "")   # This Db Is For Other Data Store
-F_DB_URI = environ.get('F_DB_URI', "")   # This Db Is For File Data Store
-S_DB_URI = environ.get('S_DB_URI', "")   # This Db is for File Data Store When First Db Is Going To Be Full.
+# Show "Try Again" button after joining (only for request-to-join mode)
+TRY_AGAIN_BTN = bool(environ.get('TRY_AGAIN_BTN', False))
 
-# Links
-GRP_LNK = environ.get('GRP_LNK', 'https://t.me/ebookguy')
-CHNL_LNK = environ.get('CHNL_LNK', 'https://t.me/ebookguy')
-SUPPORT_CHAT = environ.get('SUPPORT_CHAT', 'codeconvo') # Support Chat Link Without https:// or @
-OWNER_LNK = environ.get('OWNER_LNK', 'https://t.me/ebookguy')
 
-# Affiliate Links
+# ═══════════════════════════════════════════════════════════════════════════════
+# 🗄️ SECTION 5: DATABASE (MongoDB)
+# ═══════════════════════════════════════════════════════════════════════════════
+
+DATABASE_URI = environ.get('DATABASE_URI', "")           # Main MongoDB connection string
+DATABASE_NAME = environ.get('DATABASE_NAME', "booksnew") # Database name
+COLLECTION_NAME = environ.get('COLLECTION_NAME', 'ebookguy')  # Collection for files
+
+# Multiple Database Support (for large file collections)
+MULTIPLE_DATABASE = bool(environ.get('MULTIPLE_DATABASE', False))
+
+# Only needed if MULTIPLE_DATABASE = True
+O_DB_URI = environ.get('O_DB_URI', "")    # Other data (users, settings)
+F_DB_URI = environ.get('F_DB_URI', "")    # File data (primary)
+S_DB_URI = environ.get('S_DB_URI', "")    # File data (secondary - when primary is full)
+
+
+# ═══════════════════════════════════════════════════════════════════════════════
+# 🔗 SECTION 6: LINKS & URLs
+# ═══════════════════════════════════════════════════════════════════════════════
+
+GRP_LNK = environ.get('GRP_LNK', 'https://t.me/ebookguy')        # Your group link
+CHNL_LNK = environ.get('CHNL_LNK', 'https://t.me/ebookguy')      # Your channel link
+SUPPORT_CHAT = environ.get('SUPPORT_CHAT', 'codeconvo')          # Support username (without @)
+OWNER_LNK = environ.get('OWNER_LNK', 'https://t.me/ebookguy')    # Owner's profile link
+
+# Affiliate/Promo Button Links
 BTN_URL_2 = environ.get('BTN_URL_2', 'https://t.me/EbookGuy/14')
 BTN_URL_3 = environ.get('BTN_URL_3', 'https://d6416ego1cnb1m0bqdoan-wv3h.hop.clickbank.net')
 BTN_URL_4 = environ.get('BTN_URL_4', 'https://6b61fbsc-elbfs1gnqwbkifpbr.hop.clickbank.net/?cbpage=1')
 
-# True Or False
-ON_HEROKU = 'DYNO' in environ
-PING_INTERVAL = int(environ.get("PING_INTERVAL", "1200"))
 
-PM_SEARCH = bool(environ.get('PM_SEARCH', True))
-BUTTON_MODE = bool(environ.get('BUTTON_MODE', True))
-MAX_BTN = bool(environ.get('MAX_BTN', True))
-IS_TUTORIAL = bool(environ.get('IS_TUTORIAL', False))
-AUTO_FFILTER = bool(environ.get('AUTO_FFILTER', True))
-AUTO_DELETE = bool(environ.get('AUTO_DELETE', True))
+# ═══════════════════════════════════════════════════════════════════════════════
+# 💰 SECTION 7: SHORTLINK & MONETIZATION
+# ═══════════════════════════════════════════════════════════════════════════════
 
-MELCOW_NEW_USERS = bool(environ.get('MELCOW_NEW_USERS', True))
-PROTECT_CONTENT = bool(environ.get('PROTECT_CONTENT', False))
-PUBLIC_FILE_STORE = bool(environ.get('PUBLIC_FILE_STORE', False))
-NO_RESULTS_MSG = bool(environ.get("NO_RESULTS_MSG", True))
-USE_CAPTION_FILTER = bool(environ.get('USE_CAPTION_FILTER', True))
+SHORTLINK_MODE = bool(environ.get('SHORTLINK_MODE', True))       # Enable shortlinks for earning
+SHORTLINK_URL = environ.get('SHORTLINK_URL', 'shortener-ozkc.onrender.com')
+SHORTLINK_API = environ.get('SHORTLINK_API', '1f9180e7c06e30e50518e1f23a988c4edeada3dc2f8403324aa7b50d135b36cd')
+TUTORIAL = environ.get('TUTORIAL', 'https://t.me/tutorialtopass/7')  # How to bypass shortlink video
 
 
-# Token Verification Info :
-VERIFY = bool(environ.get('VERIFY', False))
-VERIFY_SHORTLINK_URL = environ.get('VERIFY_SHORTLINK_URL', '')
-VERIFY_SHORTLINK_API = environ.get('VERIFY_SHORTLINK_API', '')
-VERIFY_TUTORIAL = environ.get('VERIFY_TUTORIAL', '')
+# ═══════════════════════════════════════════════════════════════════════════════
+# ✅ SECTION 8: VERIFICATION SETTINGS
+# ═══════════════════════════════════════════════════════════════════════════════
 
-# If You Fill Second Shortner Then Bot Attach Both First And Second Shortner And Use It For Verify.
+VERIFY = bool(environ.get('VERIFY', False))                      # Enable token verification
+VERIFY_SHORTLINK_URL = environ.get('VERIFY_SHORTLINK_URL', '')   # Verification shortlink URL
+VERIFY_SHORTLINK_API = environ.get('VERIFY_SHORTLINK_API', '')   # Verification shortlink API
+VERIFY_TUTORIAL = environ.get('VERIFY_TUTORIAL', '')             # Verification tutorial link
+
+# Second Shortener (optional - adds extra verification step)
 VERIFY_SECOND_SHORTNER = bool(environ.get('VERIFY_SECOND_SHORTNER', False))
-# if verify second shortner is True then fill below url and api
 VERIFY_SND_SHORTLINK_URL = environ.get('VERIFY_SND_SHORTLINK_URL', '')
 VERIFY_SND_SHORTLINK_API = environ.get('VERIFY_SND_SHORTLINK_API', '')
 
 
-# Shortlink Info
-SHORTLINK_MODE = bool(environ.get('SHORTLINK_MODE', True)) # Set True Or False
-# SHORTLINK_URL = environ.get('SHORTLINK_URL', 'exe.io')
-SHORTLINK_URL = environ.get('SHORTLINK_URL', 'shortener-ozkc.onrender.com')
-# SHORTLINK_API = environ.get('SHORTLINK_API', '8d02c821896fcf8c06a4b03081c1f433fa8805d0')
-SHORTLINK_API = environ.get('SHORTLINK_API', '1f9180e7c06e30e50518e1f23a988c4edeada3dc2f8403324aa7b50d135b36cd')
-TUTORIAL = environ.get('TUTORIAL', 'https://t.me/tutorialtopass/7') # How Open Shortner Link Video Link , Channel Link Where You Upload Your Video.
+# ═══════════════════════════════════════════════════════════════════════════════
+# ⚙️ SECTION 9: FEATURE TOGGLES (True/False)
+# ═══════════════════════════════════════════════════════════════════════════════
+
+PM_SEARCH = bool(environ.get('PM_SEARCH', True))           # Allow search in private messages
+AUTO_FFILTER = bool(environ.get('AUTO_FFILTER', True))     # Auto-filter in groups
+AUTO_DELETE = bool(environ.get('AUTO_DELETE', True))       # Auto-delete search results after 5 min
+BUTTON_MODE = bool(environ.get('BUTTON_MODE', True))       # Show files as buttons
+MAX_BTN = bool(environ.get('MAX_BTN', True))               # Limit buttons per page
+
+MELCOW_NEW_USERS = bool(environ.get('MELCOW_NEW_USERS', True))    # Welcome new users in groups
+PROTECT_CONTENT = bool(environ.get('PROTECT_CONTENT', False))     # Disable forwarding bot messages
+PUBLIC_FILE_STORE = bool(environ.get('PUBLIC_FILE_STORE', False)) # Anyone can use file store
+NO_RESULTS_MSG = bool(environ.get("NO_RESULTS_MSG", True))        # Show "no results" message
+USE_CAPTION_FILTER = bool(environ.get('USE_CAPTION_FILTER', True)) # Search in file captions too
+
+RENAME_MODE = bool(environ.get('RENAME_MODE', False))       # Allow file renaming
+AUTO_APPROVE_MODE = bool(environ.get('AUTO_APPROVE_MODE', False))  # Auto-approve join requests
+IS_TUTORIAL = bool(environ.get('IS_TUTORIAL', False))       # Show tutorial button
 
 
-# Others
-CACHE_TIME = int(environ.get('CACHE_TIME', 1800))
-MAX_B_TN = environ.get("MAX_B_TN", "5")
-PORT = int(environ.get("PORT", "8080"))
-URL = environ.get("URL", "http://localhost:8080/")
-MSG_ALRT = environ.get('MSG_ALRT', 'Hello My Dear Friends ❤️')
+# ═══════════════════════════════════════════════════════════════════════════════
+# 🎨 SECTION 10: APPEARANCE & MISC
+# ═══════════════════════════════════════════════════════════════════════════════
+
+# Start message picture(s) - space-separated for multiple
+PICS = (environ.get('PICS', 'https://graph.org/file/df2e2eb5e888871ab5243.jpg')).split()
+
+# Bot reactions when user starts
+REACTIONS = ["🤝", "😇", "🤗", "😍", "👍", "🎅", "😐", "🥰", "🤩", "😱", "🤣", "😘", "👏", "😛", "😈", "🎉", "⚡️", "🫡", "🤓", "😎", "🏆", "🔥", "🤭", "🌚", "🆒", "👻", "😁"]
+
+# Captions for files
 CUSTOM_FILE_CAPTION = environ.get("CUSTOM_FILE_CAPTION", f"{script.CAPTION}")
 BATCH_FILE_CAPTION = environ.get("BATCH_FILE_CAPTION", CUSTOM_FILE_CAPTION)
-MAX_LIST_ELM = environ.get("MAX_LIST_ELM", None)
-
-# Rename Info : If True Then Bot Rename File Else Not
-RENAME_MODE = bool(environ.get('RENAME_MODE', False)) # Set True or False
+MSG_ALRT = environ.get('MSG_ALRT', 'Hello My Dear Friends ❤️')
 
 
-# Auto Approve Info : If True Then Bot Approve New Upcoming Join Request Else Not
-AUTO_APPROVE_MODE = bool(environ.get('AUTO_APPROVE_MODE', False)) # Set True or False
+# ═══════════════════════════════════════════════════════════════════════════════
+# 🖥️ SECTION 11: SERVER & TECHNICAL
+# ═══════════════════════════════════════════════════════════════════════════════
+
+ON_HEROKU = 'DYNO' in environ                              # Auto-detect Heroku deployment
+PING_INTERVAL = int(environ.get("PING_INTERVAL", "1200"))  # Keep-alive ping interval (seconds)
+PORT = int(environ.get("PORT", "8080"))                    # Web server port
+URL = environ.get("URL", "http://localhost:8080/")         # Bot URL
+CACHE_TIME = int(environ.get('CACHE_TIME', 1800))          # Cache duration (seconds)
+MAX_B_TN = environ.get("MAX_B_TN", "5")                    # Max buttons per row
+MAX_LIST_ELM = environ.get("MAX_LIST_ELM", None)           # Max list elements
 
 
-# Start Command Reactions
-REACTIONS = ["🤝", "😇", "🤗", "😍", "👍", "🎅", "😐", "🥰", "🤩", "😱", "🤣", "😘", "👏", "😛", "😈", "🎉", "⚡️", "🫡", "🤓", "😎", "🏆", "🔥", "🤭", "🌚", "🆒", "👻", "😁"] #don't add any emoji because tg not support all emoji reactions
-
+# ═══════════════════════════════════════════════════════════════════════════════
+# 🔧 DATABASE URI ASSIGNMENT (Don't modify unless you know what you're doing)
+# ═══════════════════════════════════════════════════════════════════════════════
 
 if MULTIPLE_DATABASE == False:
     USER_DB_URI = DATABASE_URI
@@ -147,10 +188,10 @@ if MULTIPLE_DATABASE == False:
     FILE_DB_URI = DATABASE_URI
     SEC_FILE_DB_URI = DATABASE_URI
 else:
-    USER_DB_URI = DATABASE_URI    # This Db is for User Data Store
-    OTHER_DB_URI = O_DB_URI       # This Db Is For Other Data Store
-    FILE_DB_URI = F_DB_URI        # This Db Is For File Data Store
-    SEC_FILE_DB_URI = S_DB_URI    # This Db is for File Data Store When First Db Is Going To Be Full.
+    USER_DB_URI = DATABASE_URI     # User data storage
+    OTHER_DB_URI = O_DB_URI        # Other data storage
+    FILE_DB_URI = F_DB_URI         # Primary file storage
+    SEC_FILE_DB_URI = S_DB_URI     # Secondary file storage (overflow)
 
 
 
