@@ -287,6 +287,9 @@ async def format_selection(bot, query):
             self.from_user = original_query.from_user
             self.id = pending_data['message_id']
             self.text = pending_data['query']
+        
+        async def delete(self):
+            pass  # Mock delete - original message already handled
     
     mock_msg = MockMessage(query, pending)
     
@@ -320,6 +323,9 @@ async def switch_format(bot, query):
             self.from_user = original_query.from_user
             self.id = pending_data['message_id']
             self.text = pending_data['query']
+        
+        async def delete(self):
+            pass  # Mock delete - original message already handled
     
     mock_msg = MockMessage(query, pending)
     
