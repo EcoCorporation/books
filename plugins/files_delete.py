@@ -34,55 +34,55 @@ async def deletemultiplemedia(bot, message):
         else:
             return
 
-    file_id, file_ref = unpack_new_file_id(media.file_id)
-    file_name = getattr(media, 'file_name', 'Unknown')
-    file_size = get_size(media.file_size)
-    total_deleted = 0
+        file_id, file_ref = unpack_new_file_id(media.file_id)
+        file_name = getattr(media, 'file_name', 'Unknown')
+        file_size = get_size(media.file_size)
+        total_deleted = 0
 
-    # Try to delete by file_id first
-    result = col.delete_one({'file_id': file_id})
-    total_deleted += result.deleted_count
-    if not result.deleted_count:
-        result = sec_col.delete_one({'file_id': file_id})
-        total_deleted += result.deleted_count
-    
-    # If not found by file_id, try by cleaned file_name + size
-    if total_deleted == 0:
-        cleaned_name = re.sub(r"(_|\-|\.|\+)", " ", str(media.file_name))
-        unwanted_chars = ['[', ']', '(', ')', '{', '}']
-        for char in unwanted_chars:
-            cleaned_name = cleaned_name.replace(char, '')
-        cleaned_name = ' '.join(filter(lambda x: not x.startswith('@'), cleaned_name.split()))
-    
-        result = col.delete_many({'file_name': cleaned_name, 'file_size': media.file_size})
+        # Try to delete by file_id first
+        result = col.delete_one({'file_id': file_id})
         total_deleted += result.deleted_count
         if not result.deleted_count:
-            result = sec_col.delete_many({'file_name': cleaned_name, 'file_size': media.file_size})
+            result = sec_col.delete_one({'file_id': file_id})
             total_deleted += result.deleted_count
         
-        # Try with original filename
+        # If not found by file_id, try by cleaned file_name + size
         if total_deleted == 0:
-            result = col.delete_many({'file_name': media.file_name, 'file_size': media.file_size})
+            cleaned_name = re.sub(r"(_|\-|\.|\+)", " ", str(media.file_name))
+            unwanted_chars = ['[', ']', '(', ')', '{', '}']
+            for char in unwanted_chars:
+                cleaned_name = cleaned_name.replace(char, '')
+            cleaned_name = ' '.join(filter(lambda x: not x.startswith('@'), cleaned_name.split()))
+        
+            result = col.delete_many({'file_name': cleaned_name, 'file_size': media.file_size})
             total_deleted += result.deleted_count
             if not result.deleted_count:
-                result = sec_col.delete_many({'file_name': media.file_name, 'file_size': media.file_size})
+                result = sec_col.delete_many({'file_name': cleaned_name, 'file_size': media.file_size})
                 total_deleted += result.deleted_count
+            
+            # Try with original filename
+            if total_deleted == 0:
+                result = col.delete_many({'file_name': media.file_name, 'file_size': media.file_size})
+                total_deleted += result.deleted_count
+                if not result.deleted_count:
+                    result = sec_col.delete_many({'file_name': media.file_name, 'file_size': media.file_size})
+                    total_deleted += result.deleted_count
 
-    # Send confirmation reply
-    if total_deleted > 0:
-        if total_deleted == 1:
-            reply_text = f"✅ <b>File Deleted Successfully!</b>\n\n📁 <code>{file_name}</code>\n💾 Size: {file_size}"
+        # Send confirmation reply
+        if total_deleted > 0:
+            if total_deleted == 1:
+                reply_text = f"✅ <b>File Deleted Successfully!</b>\n\n📁 <code>{file_name}</code>\n💾 Size: {file_size}"
+            else:
+                reply_text = f"✅ <b>{total_deleted} Files Deleted!</b>\n\n📁 <code>{file_name}</code>\n💾 Size: {file_size}\n\n<i>ℹ️ Multiple duplicates were removed</i>"
+            print(f'[files_delete.py] Deleted {total_deleted} file(s): {file_name}')
         else:
-            reply_text = f"✅ <b>{total_deleted} Files Deleted!</b>\n\n📁 <code>{file_name}</code>\n💾 Size: {file_size}\n\n<i>ℹ️ Multiple duplicates were removed</i>"
-        print(f'[files_delete.py] Deleted {total_deleted} file(s): {file_name}')
-    else:
-        reply_text = f"❌ <b>File Not Found in Database</b>\n\n📁 <code>{file_name}</code>\n💾 Size: {file_size}\n\n<i>This file may have already been deleted or was never indexed.</i>"
-        print(f'[files_delete.py] File not found in database: {file_name}')
-    
-    try:
-        await message.reply_text(reply_text)
-    except Exception as e:
-        print(f"[files_delete.py] Error sending reply: {e}")
+            reply_text = f"❌ <b>File Not Found in Database</b>\n\n📁 <code>{file_name}</code>\n💾 Size: {file_size}\n\n<i>This file may have already been deleted or was never indexed.</i>"
+            print(f'[files_delete.py] File not found in database: {file_name}')
+        
+        try:
+            await message.reply_text(reply_text)
+        except Exception as e:
+            print(f"[files_delete.py] Error sending reply: {e}")
 
     except Exception as e:
         print(f"[files_delete.py] ERROR in delete handler: {e}")
