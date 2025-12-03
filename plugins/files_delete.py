@@ -28,11 +28,11 @@ async def deletemultiplemedia(bot, message):
         print(f"[files_delete.py] Handler triggered! Chat: {message.chat.id}, Type: {message.chat.type}")
 
         for file_type in ("document", "video", "audio"):
-        media = getattr(message, file_type, None)
-        if media is not None:
-            break
-    else:
-        return
+            media = getattr(message, file_type, None)
+            if media is not None:
+                break
+        else:
+            return
 
     file_id, file_ref = unpack_new_file_id(media.file_id)
     file_name = getattr(media, 'file_name', 'Unknown')
