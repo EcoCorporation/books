@@ -18,7 +18,5 @@ RUN chown -R user:user /app && chmod -R 755 /app
 
 USER user
 
-CMD ["python3", "bot.py"]
-
 EXPOSE 8080
 CMD ["python", "bot.py"]
