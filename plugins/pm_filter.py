@@ -286,8 +286,8 @@ async def format_selection(bot, query):
     ai_search = True
     await auto_filter(bot, pending['query'], mock_msg, query.message, ai_search, format_type=format_type if format_type != "all" else None)
     
-    # Clean up pending search
-    del PENDING_SEARCH[key]
+    # Note: Don't delete PENDING_SEARCH here - it may be needed for switch_format if no results found
+    # The entry will be overwritten or reused by auto_filter if needed
 
 @Client.on_callback_query(filters.regex(r"^switch_format"))
 async def switch_format(bot, query):
