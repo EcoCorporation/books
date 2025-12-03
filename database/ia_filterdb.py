@@ -84,8 +84,9 @@ async def get_search_results(chat_id, query, file_type=None, max_results=10, off
     """
     
     # File extension patterns for format filtering
-    EBOOK_EXTENSIONS = r'\.(pdf|epub|mobi|azw|azw3|djvu|txt|cbr|cbz)$'
-    AUDIO_EXTENSIONS = r'\.(mp3|m4a|m4b|aac|ogg|flac|wav|wma|zip)$'
+    # Note: file names are cleaned - dots replaced with spaces, so "file.mp3" becomes "file mp3"
+    EBOOK_EXTENSIONS = r'\s(pdf|epub|mobi|azw|azw3|djvu|txt|cbr|cbz)(\s|$)'
+    AUDIO_EXTENSIONS = r'\s(mp3|m4a|m4b|aac|ogg|flac|wav|wma|zip)(\s|$)'
     
     query = query.strip()
     if not query:
