@@ -1,19 +1,17 @@
-import os, logging, string, asyncio, time, re, ast, random, math, pytz, pyrogram
-from datetime import datetime, timedelta, date, time
+import logging, asyncio, re, ast, random, math, pytz
+from datetime import datetime, timedelta
 from Script import script
 from info import *
-from pyrogram.types import InlineKeyboardMarkup, InlineKeyboardButton, CallbackQuery, InputMediaPhoto, ChatPermissions, WebAppInfo
+from pyrogram.types import InlineKeyboardMarkup, InlineKeyboardButton, CallbackQuery, ChatPermissions
 from pyrogram import Client, filters, enums
-from pyrogram.errors import FloodWait, UserIsBlocked, MessageNotModified, PeerIdInvalid
-from pyrogram.errors.exceptions.bad_request_400 import MediaEmpty, PhotoInvalidDimensions, WebpageMediaEmpty
+from pyrogram.errors import UserIsBlocked, MessageNotModified, PeerIdInvalid
 from utils import get_size, is_subscribed, pub_is_subscribed, temp, get_settings, save_group_settings, get_shortlink, get_tutorial, send_all, get_cap
 from database.users_chats_db import db
-from database.ia_filterdb import col, sec_col, db as media_db, sec_db, get_file_details, get_search_results, get_bad_files
+from database.ia_filterdb import col, sec_col, get_file_details, get_search_results, get_bad_files
 from database.filters_mdb import del_all, find_filter, get_filters
-from database.connections_mdb import mydb, active_connection, all_connections, delete_connection, if_active, make_active, make_inactive
+from database.connections_mdb import active_connection, all_connections, delete_connection, if_active, make_active, make_inactive
 from database.gfilters_mdb import find_gfilter, get_gfilters, del_allg
 from urllib.parse import quote_plus
-from EbookGuy.util.file_properties import get_name, get_hash, get_media_file_size
 
 logger = logging.getLogger(__name__)
 logger.setLevel(logging.ERROR)
