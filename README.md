@@ -1,28 +1,53 @@
-# Advanced Filter Bot
+# EbookGuy Bot
 
-A powerful, fully customizable, and secure Telegram Filter Bot designed for managing files, channels, and groups with ease.
+A powerful, fully customizable, and secure Telegram Bot designed for managing ebooks, audiobooks, and digital content with premium monetization via Telegram Stars.
 
 ## 🚀 Key Features
 
-*   **White-Label Ready**: Complete control over branding. All text, messages, and buttons are centralized in `Script.py` and `info.py` for easy customization.
-*   **Secure Deployment**: Docker container runs as a non-root user for enhanced security.
-*   **Affiliate Integration**: Easily configure affiliate/promotional buttons in the start message via `info.py`.
-*   **Auto-Delete**: Automatically deletes sensitive files and messages after a set time to comply with copyright regulations.
-*   **Backup Channel Support**: "Request Group Link" feature ensures users always have a way to access your content.
-*   **Smart Indexing**: Efficiently indexes files from your channels.
-*   **Auto-Filter**: Automatically fetches files based on user queries.
-*   **Force Subscribe**: Forces users to join specific channels before accessing the bot.
-*   **Broadcast**: Send messages to all users or specific groups.
+### Core Features
+*   **Format Selection**: Users can choose between Ebooks or Audiobooks before searching
+*   **Smart Search**: Intelligent file filtering with pagination support
+*   **Auto-Delete**: Automatically deletes files after 10 minutes to comply with copyright regulations
+*   **Force Subscribe**: Forces users to join specific channels before accessing the bot
+
+### Premium System (Telegram Stars)
+*   **Download Limits**: Free users get 3 downloads per day
+*   **Premium Subscriptions**: Multiple tiers available (1, 7, 15, 30, 60, 90 days)
+*   **Telegram Stars Payment**: Native Telegram payment integration
+*   **Unlimited Downloads**: Premium users enjoy unlimited access
+
+### White-Label & Customization
+*   **White-Label Ready**: Complete control over branding
+*   **Centralized Config**: All text in `Script.py`, settings in `info.py`
+*   **Affiliate Integration**: Configure promotional buttons in start message
+
+### Security & Deployment
+*   **Secure Deployment**: Docker container runs as non-root user
+*   **Backup Channel Support**: "Request Group Link" ensures content access
+*   **Smart Indexing**: Efficiently indexes files with checkpoint/resume support
 
 ## 🛠 Configuration
 
 All configurations are managed in two main files:
 
-1.  **`info.py`**: Contains API keys, database URLs, channel IDs, and affiliate link configurations.
+1.  **`info.py`**: Contains API keys, database URLs, channel IDs, premium pricing, and affiliate link configurations.
 2.  **`Script.py`**: Contains all the text messages used by the bot. Edit this file to change the bot's language or tone.
 
+### Premium Pricing (info.py)
+```python
+FREE_DAILY_LIMIT = 3  # Free downloads per day
+PREMIUM_PRICES = {
+    1: 11,    # 1 Day - 11 Stars
+    7: 60,    # 7 Days - 60 Stars
+    15: 110,  # 15 Days - 110 Stars
+    30: 185,  # 30 Days - 185 Stars
+    60: 340,  # 60 Days - 340 Stars
+    90: 480,  # 90 Days - 480 Stars
+}
+```
+
 ### Affiliate Buttons
-You can configure up to 3 affiliate/promotional buttons in `info.py`:
+You can configure up to 4 affiliate/promotional buttons in `info.py`:
 *   `BTN_LABEL_1` / `CHNL_LNK` (Main Channel)
 *   `BTN_LABEL_2` / `BTN_URL_2`
 *   `BTN_LABEL_3` / `BTN_URL_3`
@@ -34,21 +59,25 @@ This bot is optimized for Docker.
 
 1.  **Build the image**:
     ```bash
-    docker build -t filter-bot .
+    docker build -t ebookguy-bot .
     ```
 
 2.  **Run the container**:
     ```bash
-    docker run -d -p 8080:8080 --env-file .env filter-bot
+    docker run -d -p 8080:8080 --env-file .env ebookguy-bot
     ```
 
 ## 🤖 Commands
 
 ### General
-*   `/start` - Start the bot
+*   `/start` - Start the bot and choose format (Ebook/Audiobook)
 *   `/stats` - Check database statistics
 *   `/id` - Get Telegram ID
 *   `/info` - Get user info
+
+### Premium & Monetization
+*   `/premium` - View premium subscription options with Star pricing
+*   `/mystatus` - Check your premium status and remaining time
 
 ### Admin
 *   `/logs` - Get recent error logs
@@ -59,13 +88,15 @@ This bot is optimized for Docker.
 *   `/ban` / `/unban` - Manage user access
 
 ### Indexing & Filtering
-*   `/index` - Index files from a channel
+*   `/index` - Index files from a channel (with checkpoint/resume support)
 *   `/delete` - Delete a specific file from DB
 *   `/deleteall` - Delete all indexed files
+*   `/deletebyquery` - Delete files matching a search query
 *   `/filter` - Add a manual filter
 *   `/filters` - View all filters
 *   `/del` - Delete a filter
 *   `/delall` - Delete all filters
+*   `/find_duplicates` - Find duplicate files in database
 
 ### Group Management
 *   `/connect` - Connect group to PM
@@ -74,14 +105,18 @@ This bot is optimized for Docker.
 *   `/fsub` - Add force subscribe channel
 *   `/nofsub` - Remove force subscribe
 
-### Premium
-*   `/premium` - View premium subscription options
-*   `/mystatus` - Check your premium status
-
 ### Extras
 *   `/batch` - Create a batch link for multiple files
 *   `/link` - Create a link for a single file
 *   `/stream` - Generate stream/download links
+
+## 💎 Premium Benefits
+
+| Feature | Free Users | Premium Users |
+|---------|------------|---------------|
+| Daily Downloads | 3 per day | Unlimited |
+| Download Speed | Standard | Priority |
+| File Access | All files | All files |
 
 ## 📝 License
 
