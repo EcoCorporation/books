@@ -2,10 +2,11 @@
 
 import re, base64, json
 from struct import pack
+from datetime import datetime
 from pyrogram.file_id import FileId
 from pymongo import MongoClient
 from pymongo.errors import DuplicateKeyError
-from info import FILE_DB_URI, SEC_FILE_DB_URI, DATABASE_NAME, COLLECTION_NAME, MULTIPLE_DATABASE, USE_CAPTION_FILTER, MAX_B_TN
+from info import FILE_DB_URI, SEC_FILE_DB_URI, DATABASE_NAME, COLLECTION_NAME, MULTIPLE_DATABASE, USE_CAPTION_FILTER, MAX_B_TN, ALLOWED_EXTENSIONS, FILTER_BY_EXTENSION
 
 # First Database For File Saving 
 client = MongoClient(FILE_DB_URI)
@@ -16,6 +17,9 @@ col = db[COLLECTION_NAME]
 sec_client = MongoClient(SEC_FILE_DB_URI)
 sec_db = sec_client[DATABASE_NAME]
 sec_col = sec_db[COLLECTION_NAME]
+
+# Checkpoint collection for indexing resume
+checkpoint_col = db['indexing_checkpoints']
 
 
 async def save_file(media):
@@ -209,4 +213,48 @@ def unpack_new_file_id(new_file_id):
         )
     )
     return file_id
-    
+
+
+# ═══════════════════════════════════════════════════════════════════════════════
+# 📥 INDEXING CHECKPOINT FUNCTIONS
+# ═══════════════════════════════════════════════════════════════════════════════
+
+def is_allowed_file(file_name):
+    """Check if file extension is in allowed list (ebooks/audiobooks)."""
+    if not FILTER_BY_EXTENSION:
+        return True
+    if not file_name:
+        return False
+    ext = file_name.rsplit('.', 1)[-1].lower() if '.' in file_name else ''
+    return ext in ALLOWED_EXTENSIONS
+
+
+def save_checkpoint(chat_id, current_msg, stats):
+    """Save indexing progress to database for resume capability."""
+    checkpoint_col.update_one(
+        {'chat_id': chat_id},
+        {'$set': {
+            'current_msg': current_msg,
+            'stats': stats,
+            'updated_at': datetime.utcnow()
+        }},
+        upsert=True
+    )
+
+
+def get_checkpoint(chat_id):
+    """Get saved checkpoint for a channel."""
+    return checkpoint_col.find_one({'chat_id': chat_id})
+
+
+def delete_checkpoint(chat_id):
+    """Remove checkpoint after successful completion."""
+    checkpoint_col.delete_one({'chat_id': chat_id})
+
+
+def get_all_checkpoints():
+    """Get all active checkpoints for /resume command."""
+    return list(checkpoint_col.find())
+
+
+#EbookGuy

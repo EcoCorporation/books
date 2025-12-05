@@ -148,6 +148,12 @@ RENAME_MODE = bool(environ.get('RENAME_MODE', False))       # Allow file renamin
 AUTO_APPROVE_MODE = bool(environ.get('AUTO_APPROVE_MODE', False))  # Auto-approve join requests
 IS_TUTORIAL = bool(environ.get('IS_TUTORIAL', False))       # Show tutorial button
 
+# Indexing Settings
+FILTER_BY_EXTENSION = bool(environ.get('FILTER_BY_EXTENSION', True))  # Only index ebooks/audiobooks
+EBOOK_EXTENSIONS = environ.get('EBOOK_EXTENSIONS', 'epub pdf mobi azw azw3 djvu fb2 cbz cbr txt doc docx rtf').split()
+AUDIOBOOK_EXTENSIONS = environ.get('AUDIOBOOK_EXTENSIONS', 'mp3 m4a m4b aax aa flac ogg wav wma aac zip rar 7z').split()
+ALLOWED_EXTENSIONS = EBOOK_EXTENSIONS + AUDIOBOOK_EXTENSIONS
+
 
 # ═══════════════════════════════════════════════════════════════════════════════
 # 🎨 SECTION 10: APPEARANCE & MISC
