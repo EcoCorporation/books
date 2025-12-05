@@ -579,3 +579,64 @@ async def get_seconds(time_string):
         return value * 86400 * 365
     else:
         return 0
+
+
+# ═══════════════════════════════════════════════════════════════════════════════
+# 🔧 HELPER FUNCTIONS (to reduce code duplication)
+# ═══════════════════════════════════════════════════════════════════════════════
+
+from database.connections_mdb import active_connection
+
+async def is_admin_or_owner(client, grp_id, user_id):
+    """Check if user is admin, owner, or in ADMINS list"""
+    try:
+        member = await client.get_chat_member(grp_id, user_id)
+        return (
+            member.status in [enums.ChatMemberStatus.ADMINISTRATOR, enums.ChatMemberStatus.OWNER]
+            or str(user_id) in ADMINS
+        )
+    except Exception:
+        return str(user_id) in ADMINS
+
+
+async def get_group_context(client, message):
+    """
+    Get group context for commands that work in both PM and groups.
+    Returns (grp_id, title) or (None, None) if not available.
+    Also returns error_message if there's an issue.
+    """
+    chat_type = message.chat.type
+    user_id = message.from_user.id if message.from_user else None
+    
+    if user_id is None:
+        return None, None, "You are anonymous admin. Use /connect {chat_id} in PM"
+    
+    if chat_type == enums.ChatType.PRIVATE:
+        grpid = await active_connection(str(user_id))
+        if grpid is not None:
+            try:
+                chat = await client.get_chat(grpid)
+                return grpid, chat.title, None
+            except Exception:
+                return None, None, "Make sure I'm present in your group!!"
+        else:
+            return None, None, "I'm not connected to any groups!"
+    
+    elif chat_type in [enums.ChatType.GROUP, enums.ChatType.SUPERGROUP]:
+        return message.chat.id, message.chat.title, None
+    
+    return None, None, "Unsupported chat type"
+
+
+def format_file_caption(title, size, caption):
+    """Format file caption using CUSTOM_FILE_CAPTION if available"""
+    if CUSTOM_FILE_CAPTION:
+        try:
+            return CUSTOM_FILE_CAPTION.format(
+                file_name=title or '',
+                file_size=size or '',
+                file_caption=caption or ''
+            )
+        except Exception:
+            pass
+    return caption or title or ''

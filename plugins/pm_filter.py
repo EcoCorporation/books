@@ -25,6 +25,39 @@ BUTTONS1 = {}
 BUTTONS2 = {}
 PENDING_SEARCH = {}  # Stores search queries pending format selection
 
+
+class MockMessage:
+    """Mock message object for format selection callbacks"""
+    def __init__(self, original_query, pending_data):
+        self.chat = original_query.message.chat
+        self.from_user = original_query.from_user
+        self.id = pending_data['message_id']
+        self.text = pending_data['query']
+    
+    async def delete(self):
+        pass  # Mock delete - original message already handled
+
+
+async def show_format_selection(message, query_text):
+    """Helper function to show format selection buttons"""
+    key = f"{message.chat.id}-{message.id}"
+    PENDING_SEARCH[key] = {
+        'query': query_text,
+        'chat_id': message.chat.id,
+        'user_id': message.from_user.id if message.from_user else 0,
+        'message_id': message.id
+    }
+    format_btn = [
+        [InlineKeyboardButton("📖 Ebook (PDF, EPUB, etc.)", callback_data=f"format_select#ebook#{key}")],
+        [InlineKeyboardButton("🎧 Audiobook (MP3, M4B, etc.)", callback_data=f"format_select#audiobook#{key}")],
+        [InlineKeyboardButton("📚 All Formats", callback_data=f"format_select#all#{key}")]
+    ]
+    await message.reply_text(
+        f"<b>🔍 Searching For:</b> <i>{query_text}</i>\n\n<b>Please select the format you want:</b>",
+        reply_markup=InlineKeyboardMarkup(format_btn)
+    )
+
+
 @Client.on_message(filters.group & filters.text, group=10)
 async def give_filter(client, message):
     if message.text.startswith("/") or message.text.startswith("#"):
@@ -51,45 +84,13 @@ async def give_filter(client, message):
                 settings = await get_settings(message.chat.id)
                 try:
                     if settings['auto_ffilter']:
-                        # Show format selection buttons
-                        key = f"{message.chat.id}-{message.id}"
-                        PENDING_SEARCH[key] = {
-                            'query': message.text,
-                            'chat_id': message.chat.id,
-                            'user_id': message.from_user.id if message.from_user else 0,
-                            'message_id': message.id
-                        }
-                        format_btn = [
-                            [InlineKeyboardButton("📖 Ebook (PDF, EPUB, etc.)", callback_data=f"format_select#ebook#{key}")],
-                            [InlineKeyboardButton("🎧 Audiobook (MP3, M4B, etc.)", callback_data=f"format_select#audiobook#{key}")],
-                            [InlineKeyboardButton("📚 All Formats", callback_data=f"format_select#all#{key}")]
-                        ]
-                        await message.reply_text(
-                            f"<b>🔍 Searching For:</b> <i>{message.text}</i>\n\n<b>Please select the format you want:</b>",
-                            reply_markup=InlineKeyboardMarkup(format_btn)
-                        )
+                        await show_format_selection(message, message.text)
                 except KeyError:
                     grpid = await active_connection(str(message.from_user.id))
                     await save_group_settings(grpid, 'auto_ffilter', True)
                     settings = await get_settings(message.chat.id)
                     if settings['auto_ffilter']:
-                        # Show format selection buttons
-                        key = f"{message.chat.id}-{message.id}"
-                        PENDING_SEARCH[key] = {
-                            'query': message.text,
-                            'chat_id': message.chat.id,
-                            'user_id': message.from_user.id if message.from_user else 0,
-                            'message_id': message.id
-                        }
-                        format_btn = [
-                            [InlineKeyboardButton("📖 Ebook (PDF, EPUB, etc.)", callback_data=f"format_select#ebook#{key}")],
-                            [InlineKeyboardButton("🎧 Audiobook (MP3, M4B, etc.)", callback_data=f"format_select#audiobook#{key}")],
-                            [InlineKeyboardButton("📚 All Formats", callback_data=f"format_select#all#{key}")]
-                        ]
-                        await message.reply_text(
-                            f"<b>🔍 Searching For:</b> <i>{message.text}</i>\n\n<b>Please select the format you want:</b>",
-                            reply_markup=InlineKeyboardMarkup(format_btn)
-                        )
+                        await show_format_selection(message, message.text)
         else: #a better logic to avoid repeated lines of code in auto_filter function
             search = message.text
             temp_files, temp_offset, total_results = await get_search_results(chat_id=message.chat.id, query=search.lower(), offset=0, filter=True)
@@ -109,25 +110,7 @@ async def pm_text(bot, message):
     user_id = message.from_user.id
     if content.startswith("/") or content.startswith("#"): return  # ignore commands and hashtags
     if PM_SEARCH == True:
-        # Show format selection buttons for PM
-        key = f"{message.chat.id}-{message.id}"
-        PENDING_SEARCH[key] = {
-            'query': content,
-            'chat_id': message.chat.id,
-            'user_id': user_id,
-            'message_id': message.id
-        }
-        format_btn = [
-            [InlineKeyboardButton("📖 Ebook (PDF, EPUB, etc.)", callback_data=f"format_select#ebook#{key}")],
-            [InlineKeyboardButton("🎧 Audiobook (MP3, M4B, etc.)", callback_data=f"format_select#audiobook#{key}")],
-            [InlineKeyboardButton("📚 All Formats", callback_data=f"format_select#all#{key}")]
-        ]
-        await bot.send_message(
-            message.from_user.id,
-            f"<b>🔍 Searching For:</b> <i>{content}</i>\n\n<b>Please select the format you want:</b>",
-            reply_markup=InlineKeyboardMarkup(format_btn),
-            reply_to_message_id=message.id
-        )
+        await show_format_selection(message, content)
     
 @Client.on_callback_query(filters.regex(r"^next"))
 async def next_page(bot, query):
@@ -280,17 +263,7 @@ async def format_selection(bot, query):
     format_label = "📖 Ebooks" if format_type == "ebook" else "🎧 Audiobooks" if format_type == "audiobook" else "📚 All Formats"
     await query.message.edit_text(f"<b><i>Searching For {pending['query']} ({format_label}) 🔍</i></b>")
     
-    # Create a mock message object for auto_filter
-    class MockMessage:
-        def __init__(self, original_query, pending_data):
-            self.chat = original_query.message.chat
-            self.from_user = original_query.from_user
-            self.id = pending_data['message_id']
-            self.text = pending_data['query']
-        
-        async def delete(self):
-            pass  # Mock delete - original message already handled
-    
+    # Create mock message using the top-level MockMessage class
     mock_msg = MockMessage(query, pending)
     
     # Call auto_filter with the format type
@@ -316,17 +289,7 @@ async def switch_format(bot, query):
     format_label = "📖 Ebooks" if format_type == "ebook" else "🎧 Audiobooks" if format_type == "audiobook" else "📚 All Formats"
     await query.message.edit_text(f"<b><i>Searching For {pending['query']} ({format_label}) 🔍</i></b>")
     
-    # Create a mock message object for auto_filter
-    class MockMessage:
-        def __init__(self, original_query, pending_data):
-            self.chat = original_query.message.chat
-            self.from_user = original_query.from_user
-            self.id = pending_data['message_id']
-            self.text = pending_data['query']
-        
-        async def delete(self):
-            pass  # Mock delete - original message already handled
-    
+    # Create mock message using the top-level MockMessage class
     mock_msg = MockMessage(query, pending)
     
     # Call auto_filter with the new format type
