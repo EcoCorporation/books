@@ -34,6 +34,21 @@ async def check_and_increment_download(user_id):
     return True, False, new_count
 
 
+async def send_auto_delete_message(client, user_id, filesarr):
+    """Send auto-delete warning and delete files after 10 minutes"""
+    k = await client.send_message(
+        chat_id=user_id, 
+        text=script.IMPORTANT_DELETE_MSG
+    )
+    await asyncio.sleep(600)
+    for msg in filesarr:
+        try:
+            await msg.delete()
+        except Exception:
+            pass
+    await k.edit_text("<b>✅ Your message is successfully deleted</b>")
+
+
 def get_start_buttons():
     buttons = [[
         InlineKeyboardButton(script.BTN_LABEL_1, url=CHNL_LNK)
