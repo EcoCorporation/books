@@ -298,39 +298,39 @@ async def start(client, message):
                     await message.reply_text(
                         text=script.LIMIT_REACHED.format(FREE_DAILY_LIMIT),
                         reply_markup=InlineKeyboardMarkup(btn)
-                )
-                return
-            
-            reply_markup = None
-            msg = await client.send_cached_media(
-                chat_id=message.from_user.id,
-                file_id=file_id,
-                protect_content=True if pre == 'filep' else False,
-                reply_markup=reply_markup
-            )
-            filetype = msg.media
-            file = getattr(msg, filetype.value)
-            title = file.file_name
-            size=get_size(file.file_size)
-            f_caption = f"<code>{title}</code>"
-            if CUSTOM_FILE_CAPTION:
-                try:
-                    f_caption=CUSTOM_FILE_CAPTION.format(file_name= '' if title is None else title, file_size='' if size is None else size, file_caption='')
-                except Exception:
+                    )
                     return
-            await msg.edit_caption(caption=f_caption)
-            
-            # Show download count
-            if is_premium:
-                count_msg = await msg.reply(script.DOWNLOAD_COUNT_PREMIUM + "\n\n" + script.IMPORTANT_DELETE_MSG)
-            else:
-                count_msg = await msg.reply(script.DOWNLOAD_COUNT.format(count, FREE_DAILY_LIMIT) + "\n\n" + script.IMPORTANT_DELETE_MSG)
-            
-            btn = [[InlineKeyboardButton(script.GET_FILE_AGAIN, callback_data=f'del#{file_id}')]]
-            await asyncio.sleep(600)
-            await msg.delete()
-            await count_msg.edit_text(script.FILE_DELETED_BTN, reply_markup=InlineKeyboardMarkup(btn))
-            return
+                
+                reply_markup = None
+                msg = await client.send_cached_media(
+                    chat_id=message.from_user.id,
+                    file_id=file_id,
+                    protect_content=True if pre == 'filep' else False,
+                    reply_markup=reply_markup
+                )
+                filetype = msg.media
+                file = getattr(msg, filetype.value)
+                title = file.file_name
+                size=get_size(file.file_size)
+                f_caption = f"<code>{title}</code>"
+                if CUSTOM_FILE_CAPTION:
+                    try:
+                        f_caption=CUSTOM_FILE_CAPTION.format(file_name= '' if title is None else title, file_size='' if size is None else size, file_caption='')
+                    except Exception:
+                        pass
+                await msg.edit_caption(caption=f_caption)
+                
+                # Show download count
+                if is_premium:
+                    count_msg = await msg.reply(script.DOWNLOAD_COUNT_PREMIUM + "\n\n" + script.IMPORTANT_DELETE_MSG)
+                else:
+                    count_msg = await msg.reply(script.DOWNLOAD_COUNT.format(count, FREE_DAILY_LIMIT) + "\n\n" + script.IMPORTANT_DELETE_MSG)
+                
+                btn = [[InlineKeyboardButton(script.GET_FILE_AGAIN, callback_data=f'del#{file_id}')]]
+                await asyncio.sleep(600)
+                await msg.delete()
+                await count_msg.edit_text(script.FILE_DELETED_BTN, reply_markup=InlineKeyboardMarkup(btn))
+                return
             except Exception:
                 pass
             return await message.reply(script.NO_FILE_EXIST)
