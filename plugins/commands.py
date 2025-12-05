@@ -285,19 +285,19 @@ async def start(client, message):
         return    
         
     elif data.startswith("files"):
-    # Main file handler
-    user = message.from_user.id
-    files_ = await get_file_details(file_id)           
-    if not files_:
-        pre, file_id = ((base64.urlsafe_b64decode(data + "=" * (-len(data) % 4))).decode("ascii")).split("_", 1)
-        try:
-            # Check download limit
-            can_download, is_premium, count = await check_and_increment_download(message.from_user.id)
-            if not can_download:
-                btn = [[InlineKeyboardButton("⭐ Upgrade to Premium", callback_data="show_premium")]]
-                await message.reply_text(
-                    text=script.LIMIT_REACHED.format(FREE_DAILY_LIMIT),
-                    reply_markup=InlineKeyboardMarkup(btn)
+        # Main file handler
+        user = message.from_user.id
+        files_ = await get_file_details(file_id)           
+        if not files_:
+            pre, file_id = ((base64.urlsafe_b64decode(data + "=" * (-len(data) % 4))).decode("ascii")).split("_", 1)
+            try:
+                # Check download limit
+                can_download, is_premium, count = await check_and_increment_download(message.from_user.id)
+                if not can_download:
+                    btn = [[InlineKeyboardButton("⭐ Upgrade to Premium", callback_data="show_premium")]]
+                    await message.reply_text(
+                        text=script.LIMIT_REACHED.format(FREE_DAILY_LIMIT),
+                        reply_markup=InlineKeyboardMarkup(btn)
                 )
                 return
             
@@ -331,51 +331,51 @@ async def start(client, message):
             await msg.delete()
             await count_msg.edit_text(script.FILE_DELETED_BTN, reply_markup=InlineKeyboardMarkup(btn))
             return
-        except Exception:
-            pass
-        return await message.reply(script.NO_FILE_EXIST)
-    files = files_
-    title = files["file_name"]
-    size=get_size(files["file_size"])
-    f_caption=files["caption"]
-    if CUSTOM_FILE_CAPTION:
-        try:
-            f_caption=CUSTOM_FILE_CAPTION.format(file_name= '' if title is None else title, file_size='' if size is None else size, file_caption='' if f_caption is None else f_caption)
-        except:
-            f_caption=f_caption
-    if f_caption is None:
-        f_caption = f"{' '.join(filter(lambda x: not x.startswith('[') and not x.startswith('@'), files['file_name'].split()))}"
-    
-    # Check download limit
-    can_download, is_premium, count = await check_and_increment_download(message.from_user.id)
-    if not can_download:
-        btn = [[InlineKeyboardButton("⭐ Upgrade to Premium", callback_data="show_premium")]]
-        await message.reply_text(
-            text=script.LIMIT_REACHED.format(FREE_DAILY_LIMIT),
-            reply_markup=InlineKeyboardMarkup(btn)
+            except Exception:
+                pass
+            return await message.reply(script.NO_FILE_EXIST)
+        files = files_
+        title = files["file_name"]
+        size=get_size(files["file_size"])
+        f_caption=files["caption"]
+        if CUSTOM_FILE_CAPTION:
+            try:
+                f_caption=CUSTOM_FILE_CAPTION.format(file_name= '' if title is None else title, file_size='' if size is None else size, file_caption='' if f_caption is None else f_caption)
+            except:
+                f_caption=f_caption
+        if f_caption is None:
+            f_caption = f"{' '.join(filter(lambda x: not x.startswith('[') and not x.startswith('@'), files['file_name'].split()))}"
+        
+        # Check download limit
+        can_download, is_premium, count = await check_and_increment_download(message.from_user.id)
+        if not can_download:
+            btn = [[InlineKeyboardButton("⭐ Upgrade to Premium", callback_data="show_premium")]]
+            await message.reply_text(
+                text=script.LIMIT_REACHED.format(FREE_DAILY_LIMIT),
+                reply_markup=InlineKeyboardMarkup(btn)
+            )
+            return
+        
+        reply_markup = None
+        msg = await client.send_cached_media(
+            chat_id=message.from_user.id,
+            file_id=file_id,
+            caption=f_caption,
+            protect_content=True if pre == 'filep' else False,
+            reply_markup=reply_markup
         )
-        return
-    
-    reply_markup = None
-    msg = await client.send_cached_media(
-        chat_id=message.from_user.id,
-        file_id=file_id,
-        caption=f_caption,
-        protect_content=True if pre == 'filep' else False,
-        reply_markup=reply_markup
-    )
-    
-    # Show download count
-    if is_premium:
-        count_msg = await msg.reply(script.DOWNLOAD_COUNT_PREMIUM + "\n\n" + script.IMPORTANT_DELETE_MSG)
-    else:
-        count_msg = await msg.reply(script.DOWNLOAD_COUNT.format(count, FREE_DAILY_LIMIT) + "\n\n" + script.IMPORTANT_DELETE_MSG)
-    
-    btn = [[InlineKeyboardButton(script.GET_FILE_AGAIN, callback_data=f'del#{file_id}')]]
-    await asyncio.sleep(600)
-    await msg.delete()
-    await count_msg.edit_text(script.FILE_DELETED_BTN, reply_markup=InlineKeyboardMarkup(btn))
-    return   
+        
+        # Show download count
+        if is_premium:
+            count_msg = await msg.reply(script.DOWNLOAD_COUNT_PREMIUM + "\n\n" + script.IMPORTANT_DELETE_MSG)
+        else:
+            count_msg = await msg.reply(script.DOWNLOAD_COUNT.format(count, FREE_DAILY_LIMIT) + "\n\n" + script.IMPORTANT_DELETE_MSG)
+        
+        btn = [[InlineKeyboardButton(script.GET_FILE_AGAIN, callback_data=f'del#{file_id}')]]
+        await asyncio.sleep(600)
+        await msg.delete()
+        await count_msg.edit_text(script.FILE_DELETED_BTN, reply_markup=InlineKeyboardMarkup(btn))
+        return   
 
 @Client.on_message(filters.command('channel') & filters.user(ADMINS))
 async def channel_info(bot, message):
