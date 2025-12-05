@@ -299,7 +299,7 @@ async def start(client, message):
         await send_auto_delete_message(client, message.from_user.id, filesarr)
         return    
         
-    elif data.startswith("files"):
+    elif pre in ["file", "filep"]:
         # Main file handler
         user = message.from_user.id
         files_ = await get_file_details(file_id)           
