@@ -1,7 +1,7 @@
 import logging
 import datetime
 from pyrogram import Client, filters
-from pyrogram.types import InlineKeyboardMarkup, InlineKeyboardButton, CallbackQuery, PreCheckoutQuery
+from pyrogram.types import InlineKeyboardMarkup, InlineKeyboardButton, CallbackQuery, PreCheckoutQuery, LabeledPrice
 from pyrogram.errors import MessageNotModified
 from info import ADMINS, PREMIUM_PRICES, FREE_DAILY_LIMIT
 from database.users_chats_db import db
@@ -176,7 +176,7 @@ async def buy_premium_callback(client, query):
             description=f"Get {days} day{'s' if days > 1 else ''} of Premium access with unlimited downloads. If you already have Premium, this will extend your existing plan.",
             payload=f"premium_{days}_{query.from_user.id}",
             currency="XTR",  # Telegram Stars
-            prices=[{"label": f"{days} Day{'s' if days > 1 else ''} Premium", "amount": stars}]
+            prices=[LabeledPrice(label=f"{days} Day{'s' if days > 1 else ''} Premium", amount=stars)]
         )
         await query.answer()
     except Exception as e:
