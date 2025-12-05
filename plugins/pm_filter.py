@@ -300,6 +300,16 @@ async def switch_format(bot, query):
 async def cb_handler(client: Client, query: CallbackQuery):
     if query.data == "close_data":
         await query.message.delete()
+    elif query.data == "show_premium":
+        # Redirect to premium handler
+        from plugins.premium import show_premium_callback
+        await show_premium_callback(client, query)
+        return
+    elif query.data.startswith("buy_premium_"):
+        # Redirect to premium buy handler
+        from plugins.premium import buy_premium_callback
+        await buy_premium_callback(client, query)
+        return
     elif query.data == "gfiltersdeleteallconfirm":
         await del_allg(query.message, 'gfilters')
         await query.answer("Done !")
