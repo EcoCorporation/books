@@ -104,32 +104,25 @@ BTN_URL_4 = environ.get('BTN_URL_4', 'https://6b61fbsc-elbfs1gnqwbkifpbr.hop.cli
 
 
 # ═══════════════════════════════════════════════════════════════════════════════
-# 💰 SECTION 7: SHORTLINK & MONETIZATION
+# 💰 SECTION 7: PREMIUM SYSTEM (Telegram Stars)
 # ═══════════════════════════════════════════════════════════════════════════════
 
-SHORTLINK_MODE = bool(environ.get('SHORTLINK_MODE', True))       # Enable shortlinks for earning
-SHORTLINK_URL = environ.get('SHORTLINK_URL', 'shortener-ozkc.onrender.com')
-SHORTLINK_API = environ.get('SHORTLINK_API', '1f9180e7c06e30e50518e1f23a988c4edeada3dc2f8403324aa7b50d135b36cd')
-TUTORIAL = environ.get('TUTORIAL', 'https://t.me/tutorialtopass/7')  # How to bypass shortlink video
+# Free user daily download limit
+FREE_DAILY_LIMIT = int(environ.get('FREE_DAILY_LIMIT', 3))
 
-
-# ═══════════════════════════════════════════════════════════════════════════════
-# ✅ SECTION 8: VERIFICATION SETTINGS
-# ═══════════════════════════════════════════════════════════════════════════════
-
-VERIFY = bool(environ.get('VERIFY', False))                      # Enable token verification
-VERIFY_SHORTLINK_URL = environ.get('VERIFY_SHORTLINK_URL', '')   # Verification shortlink URL
-VERIFY_SHORTLINK_API = environ.get('VERIFY_SHORTLINK_API', '')   # Verification shortlink API
-VERIFY_TUTORIAL = environ.get('VERIFY_TUTORIAL', '')             # Verification tutorial link
-
-# Second Shortener (optional - adds extra verification step)
-VERIFY_SECOND_SHORTNER = bool(environ.get('VERIFY_SECOND_SHORTNER', False))
-VERIFY_SND_SHORTLINK_URL = environ.get('VERIFY_SND_SHORTLINK_URL', '')
-VERIFY_SND_SHORTLINK_API = environ.get('VERIFY_SND_SHORTLINK_API', '')
+# Premium pricing in Telegram Stars (buying extends existing plan)
+PREMIUM_PRICES = {
+    1: 11,      # 1 Day - 11 Stars
+    7: 60,      # 7 Days - 60 Stars
+    15: 110,    # 15 Days - 110 Stars
+    30: 185,    # 30 Days - 185 Stars
+    60: 340,    # 60 Days - 340 Stars
+    90: 480,    # 90 Days - 480 Stars
+}
 
 
 # ═══════════════════════════════════════════════════════════════════════════════
-# ⚙️ SECTION 9: FEATURE TOGGLES (True/False)
+# ⚙️ SECTION 8: FEATURE TOGGLES (True/False)
 # ═══════════════════════════════════════════════════════════════════════════════
 
 PM_SEARCH = bool(environ.get('PM_SEARCH', True))           # Allow search in private messages
@@ -146,7 +139,6 @@ USE_CAPTION_FILTER = bool(environ.get('USE_CAPTION_FILTER', True)) # Search in f
 
 RENAME_MODE = bool(environ.get('RENAME_MODE', False))       # Allow file renaming
 AUTO_APPROVE_MODE = bool(environ.get('AUTO_APPROVE_MODE', False))  # Auto-approve join requests
-IS_TUTORIAL = bool(environ.get('IS_TUTORIAL', False))       # Show tutorial button
 
 # Indexing Settings
 FILTER_BY_EXTENSION = bool(environ.get('FILTER_BY_EXTENSION', True))  # Only index ebooks/audiobooks
@@ -156,7 +148,7 @@ ALLOWED_EXTENSIONS = EBOOK_EXTENSIONS + AUDIOBOOK_EXTENSIONS
 
 
 # ═══════════════════════════════════════════════════════════════════════════════
-# 🎨 SECTION 10: APPEARANCE & MISC
+# 🎨 SECTION 9: APPEARANCE & MISC
 # ═══════════════════════════════════════════════════════════════════════════════
 
 # Start message picture(s) - space-separated for multiple
@@ -172,7 +164,7 @@ MSG_ALRT = environ.get('MSG_ALRT', 'Hello My Dear Friends ❤️')
 
 
 # ═══════════════════════════════════════════════════════════════════════════════
-# 🖥️ SECTION 11: SERVER & TECHNICAL
+# 🖥️ SECTION 10: SERVER & TECHNICAL
 # ═══════════════════════════════════════════════════════════════════════════════
 
 ON_HEROKU = 'DYNO' in environ                              # Auto-detect Heroku deployment
@@ -185,7 +177,7 @@ MAX_LIST_ELM = environ.get("MAX_LIST_ELM", None)           # Max list elements
 
 
 # ═══════════════════════════════════════════════════════════════════════════════
-# 🔧 DATABASE URI ASSIGNMENT (Don't modify unless you know what you're doing)
+# 🔧 SECTION 11: DATABASE URI ASSIGNMENT (Don't modify unless you know what you're doing)
 # ═══════════════════════════════════════════════════════════════════════════════
 
 if MULTIPLE_DATABASE == False:

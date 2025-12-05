@@ -103,10 +103,7 @@ Example:- /set_caption 📕 File Name: {filename}
     PLEASE_WAIT = "<b>Please wait...</b>"
     UNABLE_TO_OPEN_FILE = "UNABLE TO OPEN FILE."
     INVALID_LINK = "<b>Invalid link or expired link</b>"
-    VERIFY_SUCCESS = "<b>Hey {} 👋,\n\nYou have completed the verification...\n\nNow you have unlimited access till today now enjoy\n\n</b>"
-    FILE_READY = "<b>✅ Your file ready click on download now button then open link to get file\n\n</b>"
     NO_FILE_EXIST = "<b><i>No such file exist.</b></i>"
-    VERIFY_MSG = "<b>Hey {} 👋,\n\nYou are not verified today, please click on verify & get unlimited access for today</b>"
     SEARCH_AGAIN = "<b>Please Search Again in Group</b>"
     GET_FILE_AGAIN = "✅ Get File Again ✅"
     IMPORTANT_DELETE_MSG = "<blockquote><b><u>❗️❗️❗️IMPORTANT❗️️❗️❗️</u></b>\n\nThis message will be deleted in <b><u>10 mins</u> 🫥 <i></b>(due to copyright issues)</i>.\n\n<b><i>Please forward this message to your saved messages or any private chat.</i></b></blockquote>"
@@ -130,6 +127,21 @@ We couldn't find <b>"{}"</b> in our Library.
 1. Check spelling on <a href="https://www.google.com/search?q={}+book">Google</a>.
 2. Search for the <b>Author</b> instead.
 3. Still can't find it? Type <code>/request {}</code> to notify admins."""
+
+    # Premium System Messages
+    LIMIT_REACHED = """<b>❌ Daily Limit Reached!</b>
+
+You've used all your <b>{}</b> free downloads for today.
+
+<b>⭐ Upgrade to Premium for:</b>
+✅ Unlimited downloads
+✅ No daily limits
+✅ Direct access to all files
+
+<i>Your limit resets at midnight.</i>"""
+
+    DOWNLOAD_COUNT = "📥 Downloaded ({}/{})"
+    DOWNLOAD_COUNT_PREMIUM = "📥 Downloaded (Premium ∞)"
 
     REQ_UPLOADED = """<b>Great news {}! 📚</b>
 

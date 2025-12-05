@@ -74,10 +74,13 @@ This bot is optimized for Docker.
 *   `/fsub` - Add force subscribe channel
 *   `/nofsub` - Remove force subscribe
 
+### Premium
+*   `/premium` - View premium subscription options
+*   `/mystatus` - Check your premium status
+
 ### Extras
 *   `/batch` - Create a batch link for multiple files
 *   `/link` - Create a link for a single file
-*   `/shortlink` - Configure URL shortener
 *   `/stream` - Generate stream/download links
 
 ## 📝 License
