@@ -7,7 +7,7 @@ from database.ia_filterdb import col, sec_col, get_file_details, unpack_new_file
 from database.users_chats_db import db
 from database.join_reqs import JoinReqs
 from info import OWNER_LNK, REACTIONS, CHANNELS, REQUEST_TO_JOIN_MODE, TRY_AGAIN_BTN, ADMINS, AUTH_CHANNEL, LOG_CHANNEL, PICS, BATCH_FILE_CAPTION, CUSTOM_FILE_CAPTION, PROTECT_CONTENT, CHNL_LNK, GRP_LNK, REQST_CHANNEL, SUPPORT_CHAT, MAX_B_TN, BTN_URL_2, BTN_URL_3, BTN_URL_4, FREE_DAILY_LIMIT
-from utils import get_settings, pub_is_subscribed, get_size, is_subscribed, save_group_settings, temp, get_seconds
+from utils import get_settings, pub_is_subscribed, get_size, is_subscribed, temp, get_seconds
 from database.connections_mdb import active_connection
 from urllib.parse import quote_plus
 from EbookGuy.util.file_properties import get_name, get_hash, get_media_file_size
@@ -61,18 +61,9 @@ def get_start_buttons():
     ]]
     return buttons
 
-@Client.on_message(filters.command("start") & filters.incoming)
+@Client.on_message(filters.command("start") & filters.incoming & filters.private)
 async def start(client, message):
     print("DEBUG: Start command triggered")
-    if message.chat.type in [enums.ChatType.GROUP, enums.ChatType.SUPERGROUP]:
-        reply_markup = InlineKeyboardMarkup(get_start_buttons())
-        await message.reply(script.START_TXT.format(message.from_user.mention if message.from_user else message.chat.title, temp.U_NAME, temp.B_NAME), reply_markup=reply_markup, disable_web_page_preview=True)
-        await asyncio.sleep(2) # 😢 https://github.com/EvamariaTG/EvaMaria/blob/master/plugins/p_ttishow.py#L17 😬 wait a bit, before checking.
-        if not await db.get_chat(message.chat.id):
-            total=await client.get_chat_members_count(message.chat.id)
-            await client.send_message(LOG_CHANNEL, script.LOG_TEXT_G.format(message.chat.title, message.chat.id, total, "Unknown"))       
-            await db.add_chat(message.chat.id, message.chat.title)
-        return 
     if not await db.is_user_exist(message.from_user.id):
         await db.add_user(message.from_user.id, message.from_user.first_name)
         await client.send_message(LOG_CHANNEL, script.LOG_TEXT_P.format(message.from_user.id, message.from_user.mention))
@@ -508,230 +499,23 @@ async def delete_all_index_confirm(bot, query):
     await query.message.edit('Succesfully Deleted All The Indexed Files.')
 
 
-@Client.on_message(filters.command('settings'))
-async def settings(client, message):
-    print(f"DEBUG: Settings command triggered in chat: {message.chat.id}")
-    userid = message.from_user.id if message.from_user else None
-    if not userid:
-        return await message.reply(f"You are anonymous admin. Use /connect {message.chat.id} in PM")
-    chat_type = message.chat.type
-
-    if chat_type == enums.ChatType.PRIVATE:
-        grpid = await active_connection(str(userid))
-        if grpid is not None:
-            grp_id = grpid
-            try:
-                chat = await client.get_chat(grpid)
-                title = chat.title
-            except:
-                await message.reply_text("Make sure I'm present in your group!!", quote=True)
-                return
-        else:
-            await message.reply_text("I'm not connected to any groups!", quote=True)
-            return
-
-    elif chat_type in [enums.ChatType.GROUP, enums.ChatType.SUPERGROUP]:
-        grp_id = message.chat.id
-        title = message.chat.title
-
-    else:
-        return
-
-    st = await client.get_chat_member(grp_id, userid)
-    if (
-            st.status != enums.ChatMemberStatus.ADMINISTRATOR
-            and st.status != enums.ChatMemberStatus.OWNER
-            and str(userid) not in ADMINS
-    ):
-        print(f"DEBUG: User {userid} is not admin/owner in group {grp_id}")
-        return
-    
-    settings = await get_settings(grp_id)
-
-    try:
-        if settings['max_btn']:
-            settings = await get_settings(grp_id)
-    except KeyError:
-    #    await save_group_settings(grp_id, 'fsub', None)
-        await save_group_settings(grp_id, 'max_btn', False)
-        settings = await get_settings(grp_id)
-
-    if settings is not None:
-        buttons = [
-            [
-                InlineKeyboardButton(
-                    'Result Page',
-                    callback_data=f'setgs#button#{settings["button"]}#{grp_id}',
-                ),
-                InlineKeyboardButton(
-                    'Button' if settings["button"] else 'Text',
-                    callback_data=f'setgs#button#{settings["button"]}#{grp_id}',
-                ),
-            ],
-            [
-                InlineKeyboardButton(
-                    'Protect Content',
-                    callback_data=f'setgs#file_secure#{settings["file_secure"]}#{grp_id}',
-                ),
-                InlineKeyboardButton(
-                    '✔ On' if settings["file_secure"] else '✘ Off',
-                    callback_data=f'setgs#file_secure#{settings["file_secure"]}#{grp_id}',
-                ),
-            ],
-            [
-                InlineKeyboardButton(
-                    'Welcome Msg',
-                    callback_data=f'setgs#welcome#{settings["welcome"]}#{grp_id}',
-                ),
-                InlineKeyboardButton(
-                    '✔ On' if settings["welcome"] else '✘ Off',
-                    callback_data=f'setgs#welcome#{settings["welcome"]}#{grp_id}',
-                ),
-            ],
-            [
-                InlineKeyboardButton(
-                    'Auto-Delete',
-                    callback_data=f'setgs#auto_delete#{settings["auto_delete"]}#{grp_id}',
-                ),
-                InlineKeyboardButton(
-                    '10 Mins' if settings["auto_delete"] else '✘ Off',
-                    callback_data=f'setgs#auto_delete#{settings["auto_delete"]}#{grp_id}',
-                ),
-            ],
-            [
-                InlineKeyboardButton(
-                    'Auto-Filter',
-                    callback_data=f'setgs#auto_ffilter#{settings["auto_ffilter"]}#{grp_id}',
-                ),
-                InlineKeyboardButton(
-                    '✔ On' if settings["auto_ffilter"] else '✘ Off',
-                    callback_data=f'setgs#auto_ffilter#{settings["auto_ffilter"]}#{grp_id}',
-                ),
-            ],
-            [
-                InlineKeyboardButton(
-                    'Max Buttons',
-                    callback_data=f'setgs#max_btn#{settings["max_btn"]}#{grp_id}',
-                ),
-                InlineKeyboardButton(
-                    '10' if settings["max_btn"] else f'{MAX_B_TN}',
-                    callback_data=f'setgs#max_btn#{settings["max_btn"]}#{grp_id}',
-                ),
-            ],
-            [
-                InlineKeyboardButton(
-                    'Anti-Link',
-                    callback_data=f'setgs#antilink#{settings["antilink"]}#{grp_id}',
-                ),
-                InlineKeyboardButton(
-                    '✔ On' if settings["antilink"] else '✘ Off',
-                    callback_data=f'setgs#antilink#{settings["antilink"]}#{grp_id}',
-                ),
-            ],
-        ]
-        btn = [[
-            InlineKeyboardButton("Open Here ↓", callback_data=f"opnsetgrp#{grp_id}"),
-            InlineKeyboardButton("Open In PM ⇲", callback_data=f"opnsetpm#{grp_id}")
-        ]]
-        reply_markup = InlineKeyboardMarkup(buttons)
-        if chat_type in [enums.ChatType.GROUP, enums.ChatType.SUPERGROUP]:
-            await message.reply_text(
-                text="<b>Do you want to open settings here ?</b>",
-                reply_markup=InlineKeyboardMarkup(btn),
-                disable_web_page_preview=True,
-                parse_mode=enums.ParseMode.HTML,
-                reply_to_message_id=message.id
-            )
-        else:
-            await message.reply_text(
-                text=f"<b>Change Your Settings For {title} As Your Wish ⚙</b>",
-                reply_markup=reply_markup,
-                disable_web_page_preview=True,
-                parse_mode=enums.ParseMode.HTML,
-                reply_to_message_id=message.id
-            )
-        print("DEBUG: Settings menu sent")
-
-
-
-@Client.on_message(filters.command('set_template'))
-async def save_template(client, message):
-    sts = await message.reply("Checking template")
-    userid = message.from_user.id if message.from_user else None
-    if not userid:
-        return await message.reply(f"You are anonymous admin. Use /connect {message.chat.id} in PM")
-    chat_type = message.chat.type
-
-    if chat_type == enums.ChatType.PRIVATE:
-        grpid = await active_connection(str(userid))
-        if grpid is not None:
-            grp_id = grpid
-            try:
-                chat = await client.get_chat(grpid)
-                title = chat.title
-            except:
-                await message.reply_text("Make sure I'm present in your group!!", quote=True)
-                return
-        else:
-            await message.reply_text("I'm not connected to any groups!", quote=True)
-            return
-
-    elif chat_type in [enums.ChatType.GROUP, enums.ChatType.SUPERGROUP]:
-        grp_id = message.chat.id
-        title = message.chat.title
-
-    else:
-        return
-
-    st = await client.get_chat_member(grp_id, userid)
-    if (
-            st.status != enums.ChatMemberStatus.ADMINISTRATOR
-            and st.status != enums.ChatMemberStatus.OWNER
-            and str(userid) not in ADMINS
-    ):
-        return
-
-    if len(message.command) < 2:
-        return await sts.edit("No Input!!")
-    template = message.text.split(" ", 1)[1]
-    await save_group_settings(grp_id, 'template', template)
-    await sts.edit(f"Successfully changed template for {title} to\n\n{template}")
-
-
-@Client.on_message((filters.command(["request", "Request"]) | filters.regex("#request") | filters.regex("#Request")) & (filters.group | filters.private))
+@Client.on_message((filters.command(["request", "Request"]) | filters.regex("#request") | filters.regex("#Request")) & filters.private)
 async def requests(bot, message):
-    # await message.reply_text(f"Debug: Request received. Chat Type: {message.chat.type}")
     if message.reply_to_message:
-        chat_id = message.chat.id
         reporter = str(message.from_user.id)
         mention = message.from_user.mention
         success = True
         reported_post = None
         content = message.reply_to_message.text
         try:
+            btn = [[
+                InlineKeyboardButton('Show Options', callback_data=f'show_option#{reporter}')
+            ]]
             if REQST_CHANNEL is not None:
-                if message.chat.type == enums.ChatType.PRIVATE:
-                    btn = [[
-                        InlineKeyboardButton('Show Options', callback_data=f'show_option#{reporter}')
-                    ]]
-                else:
-                    btn = [[
-                        InlineKeyboardButton('View Request', url=f"{message.reply_to_message.link}"),
-                        InlineKeyboardButton('Show Options', callback_data=f'show_option#{reporter}')
-                    ]]
                 reported_post = await bot.send_message(chat_id=REQST_CHANNEL, text=f"<b>𝖱𝖾𝗉𝗈𝗋𝗍𝖾𝗿 : {message.from_user.first_name}\n\n𝖬𝖾𝗌𝗌𝖺𝗀𝖾 : {content}</b>", reply_markup=InlineKeyboardMarkup(btn))
                 success = True
             elif len(content) >= 3:
                 for admin in ADMINS:
-                    if message.chat.type == enums.ChatType.PRIVATE:
-                        btn = [[
-                            InlineKeyboardButton('Show Options', callback_data=f'show_option#{reporter}')
-                        ]]
-                    else:
-                        btn = [[
-                            InlineKeyboardButton('View Request', url=f"{message.reply_to_message.link}"),
-                            InlineKeyboardButton('Show Options', callback_data=f'show_option#{reporter}')
-                        ]]
                     reported_post = await bot.send_message(chat_id=admin, text=f"<b>𝖱𝖾𝗉𝗈𝗋𝗍𝖾𝗿 : {mention} ({reporter})\n\n𝖬𝖾𝗌𝗌𝖺𝗀𝖾 : {content}</b>", reply_markup=InlineKeyboardMarkup(btn))
                     success = True
             else:
@@ -741,10 +525,8 @@ async def requests(bot, message):
                 success = False
         except Exception as e:
             await message.reply_text(f"Error: {e}")
-            pass
         
     elif message.text:
-        chat_id = message.chat.id
         reporter = str(message.from_user.id)
         mention = message.from_user.mention
         success = True
@@ -755,30 +537,15 @@ async def requests(bot, message):
             if keyword in content:
                 content = content.replace(keyword, "")
         try:
+            btn = [[
+                InlineKeyboardButton('Show Options', callback_data=f'show_option#{reporter}')
+            ]]
             if REQST_CHANNEL is not None and len(content) >= 3:
-                if message.chat.type == enums.ChatType.PRIVATE:
-                    btn = [[
-                        InlineKeyboardButton('Show Options', callback_data=f'show_option#{reporter}')
-                    ]]
-                else:
-                    btn = [[
-                        InlineKeyboardButton('View Request', url=f"{message.link}"),
-                        InlineKeyboardButton('Show Options', callback_data=f'show_option#{reporter}')
-                    ]]
                 reported_post = await bot.send_message(chat_id=REQST_CHANNEL, text=f"<b>𝖱𝖾𝗉𝗈𝗋𝗍𝖾𝗿 : {message.from_user.first_name}\n\n𝖬𝖾𝗌𝗌𝖺𝗀𝖾 : {content}</b>", reply_markup=InlineKeyboardMarkup(btn))
                 success = True
             elif len(content) >= 3:
                 for admin in ADMINS:
-                    if message.chat.type == enums.ChatType.PRIVATE:
-                        btn = [[
-                            InlineKeyboardButton('Show Options', callback_data=f'show_option#{reporter}')
-                        ]]
-                    else:
-                        btn = [[
-                            InlineKeyboardButton('View Request', url=f"{message.link}"),
-                            InlineKeyboardButton('Show Options', callback_data=f'show_option#{reporter}')
-                        ]]
-                    reported_post = await bot.send_message(chat_id=admin, text=f"<b>𝖱𝖾𝗉𝗈𝗋𝗍𝖾𝗿 : {mention} ({reporter})\n\n𝖬𝖾𝗌𝗌𝖺𝗀𝖾 : {content}</b>", reply_markup=InlineKeyboardMarkup(btn))
+                    reported_post = await bot.send_message(chat_id=admin, text=f"<b>𝖱𝖾𝗉𝗈𝗋𝗍𝖾𝗋 : {mention} ({reporter})\n\n𝖬𝖾𝗌𝗌𝖺𝗀𝖾 : {content}</b>", reply_markup=InlineKeyboardMarkup(btn))
                     success = True
             else:
                 if len(content) < 3:
@@ -787,7 +554,6 @@ async def requests(bot, message):
                 success = False
         except Exception as e:
             await message.reply_text(f"Error: {e}")
-            pass
 
     else:
         success = False
@@ -840,13 +606,8 @@ async def send_msg(bot, message):
     else:
         await message.reply_text("<b>Use this command as a reply to any message using the target chat id. For eg: /send userid</b>")
 
-@Client.on_message(filters.command("deletefiles") & filters.user(ADMINS))
+@Client.on_message(filters.command("deletefiles") & filters.user(ADMINS) & filters.private)
 async def deletemultiplefiles(bot, message):
-    chat_type = message.chat.type
-    if chat_type != enums.ChatType.PRIVATE:
-        return await message.reply_text(f"<b>Hey {message.from_user.mention}, This command won't work in groups. It only works on my PM !</b>")
-    else:
-        pass
     try:
         keyword = message.text.split(" ", 1)[1]
     except:
@@ -873,69 +634,6 @@ async def stop_button(bot, message):
     await asyncio.sleep(3)
     await msg.edit("**✅️ 𝙱𝙾𝚃 𝙸𝚂 𝚁𝙴𝚂𝚃𝙰𝚝𝙴𝙳. 𝙽𝙾𝚆 𝚈𝙾𝚄 𝙲𝙰𝙽 𝚄𝚂𝙴 𝙼𝙴**")
     os.execl(sys.executable, sys.executable, *sys.argv)
-
-@Client.on_message(filters.command("nofsub"))
-async def nofsub(client, message):
-    userid = message.from_user.id if message.from_user else None
-    if not userid:
-        return await message.reply(f"<b>You are anonymous admin. Turn off anonymous admin and try again this command</b>")
-    chat_type = message.chat.type
-    if chat_type == enums.ChatType.PRIVATE:
-        return await message.reply_text("<b>This Command Work Only in group\n\nTry it in your own group</b>")
-    elif chat_type in [enums.ChatType.GROUP, enums.ChatType.SUPERGROUP]:
-        grpid = message.chat.id
-        title = message.chat.title
-    else:
-        return
-    userid = message.from_user.id
-    user = await client.get_chat_member(grpid, userid)
-    if user.status != enums.ChatMemberStatus.ADMINISTRATOR and user.status != enums.ChatMemberStatus.OWNER and str(userid) not in ADMINS:
-        return
-    else:
-        pass
-    await save_group_settings(grpid, 'fsub', None)
-    await message.reply_text(f"<b>Successfully removed force subscribe from {title}.</b>")
-
-@Client.on_message(filters.command('fsub'))
-async def fsub(client, message):
-    userid = message.from_user.id if message.from_user else None
-    if not userid:
-        return await message.reply(f"<b>You are anonymous admin. Turn off anonymous admin and try again this command</b>")
-    chat_type = message.chat.type
-    if chat_type == enums.ChatType.PRIVATE:
-        return await message.reply_text("<b>This Command Work Only in group\n\nTry it in your own group</b>")
-    elif chat_type in [enums.ChatType.GROUP, enums.ChatType.SUPERGROUP]:
-        grpid = message.chat.id
-        title = message.chat.title
-    else:
-        return
-    userid = message.from_user.id
-    user = await client.get_chat_member(grpid, userid)
-    if user.status != enums.ChatMemberStatus.ADMINISTRATOR and user.status != enums.ChatMemberStatus.OWNER and str(userid) not in ADMINS:
-        return
-    else:
-        pass
-    try:
-        ids = message.text.split(" ", 1)[1]
-        fsub_ids = [int(id) for id in ids.split()]
-    except IndexError:
-        return await message.reply_text("<b>Command Incomplete!\n\nAdd Multiple Channel By Seperate Space. Like: /fsub id1 id2 id3</b>")
-    except ValueError:
-        return await message.reply_text('<b>Make Sure Ids are Integer.</b>')        
-    channels = "Channels:\n"
-    for id in fsub_ids:
-        try:
-            chat = await client.get_chat(id)
-        except Exception as e:
-            return await message.reply_text(f"<b>{id} is invalid!\nMake sure this bot admin in that channel.\n\nError - {e}</b>")
-        if chat.type != enums.ChatType.CHANNEL:
-            return await message.reply_text(f"<b>{id} is not channel.</b>")
-        channels += f'{chat.title}\n'
-    await save_group_settings(grpid, 'fsub', fsub_ids)
-    await message.reply_text(f"<b>Successfully set force channels for {title} to\n\n{channels}\n\nYou can remove it by /nofsub.</b>")
-        
-
-
 
 @Client.on_message(filters.command("totalrequests") & filters.private & filters.user(ADMINS))
 async def total_requests(client, message):

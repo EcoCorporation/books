@@ -5,7 +5,7 @@ from info import *
 from pyrogram.types import InlineKeyboardMarkup, InlineKeyboardButton, CallbackQuery, ChatPermissions
 from pyrogram import Client, filters, enums
 from pyrogram.errors import UserIsBlocked, MessageNotModified, PeerIdInvalid
-from utils import get_size, is_subscribed, pub_is_subscribed, temp, get_settings, save_group_settings, send_all, get_cap
+from utils import get_size, is_subscribed, pub_is_subscribed, temp, get_settings, send_all, get_cap
 from database.users_chats_db import db
 from database.ia_filterdb import col, sec_col, get_file_details, get_search_results, get_bad_files
 from database.filters_mdb import del_all, find_filter, get_filters
@@ -58,59 +58,13 @@ async def show_format_selection(message, query_text):
     )
 
 
-@Client.on_message(filters.group & filters.text, group=10)
-async def give_filter(client, message):
-    if message.text.startswith("/") or message.text.startswith("#"):
-        # print(f"DEBUG: give_filter ignoring command: {message.text}")
-        return
-    try:
-        if message.chat.id != SUPPORT_CHAT_ID:
-            settings = await get_settings(message.chat.id)
-            chatid = message.chat.id 
-            user_id = message.from_user.id if message.from_user else 0
-            if settings['fsub'] != None:
-                try:
-                    btn = await pub_is_subscribed(client, message, settings['fsub'])
-                    if btn:
-                        btn.append([InlineKeyboardButton("Unmute Me 🔕", callback_data=f"unmuteme#{int(user_id)}")])
-                        await client.restrict_chat_member(chatid, message.from_user.id, ChatPermissions(can_send_messages=False))
-                        await message.reply_photo(photo=random.choice(PICS), caption=script.UNMUTE_TEXT.format(message.from_user.mention), reply_markup=InlineKeyboardMarkup(btn), parse_mode=enums.ParseMode.HTML)
-                        return
-                except Exception as e:
-                    print(e)
-                
-            manual = await manual_filters(client, message)
-            if manual == False:
-                settings = await get_settings(message.chat.id)
-                try:
-                    if settings['auto_ffilter']:
-                        await show_format_selection(message, message.text)
-                except KeyError:
-                    grpid = await active_connection(str(message.from_user.id))
-                    await save_group_settings(grpid, 'auto_ffilter', True)
-                    settings = await get_settings(message.chat.id)
-                    if settings['auto_ffilter']:
-                        await show_format_selection(message, message.text)
-        else: #a better logic to avoid repeated lines of code in auto_filter function
-            search = message.text
-            temp_files, temp_offset, total_results = await get_search_results(chat_id=message.chat.id, query=search.lower(), offset=0, filter=True)
-            if total_results == 0:
-                return
-            else:
-                return await message.reply_text(script.SUPPORT_GROUP_TEXT.format(message.from_user.mention, str(total_results), search, GRP_LNK))
-    except Exception as e:
-        print(f"ERROR in give_filter: {e}")
-        import traceback
-        traceback.print_exc()
-
 @Client.on_message(filters.private & filters.text & filters.incoming)
 async def pm_text(bot, message):
     content = message.text
     user = message.from_user.first_name
     user_id = message.from_user.id
     if content.startswith("/") or content.startswith("#"): return  # ignore commands and hashtags
-    if PM_SEARCH == True:
-        await show_format_selection(message, content)
+    await show_format_selection(message, content)
     
 @Client.on_callback_query(filters.regex(r"^next"))
 async def next_page(bot, query):
