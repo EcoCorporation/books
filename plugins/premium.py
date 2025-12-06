@@ -8,6 +8,11 @@ from database.users_chats_db import db
 from Script import script
 
 logger = logging.getLogger(__name__)
+logger.setLevel(logging.INFO)
+
+# Log that premium plugin is loaded
+print("✅ Premium plugin loaded successfully!")
+logging.info("Premium plugin initialized")
 
 # Track last invoice message for each user to delete when they select a new plan
 last_invoice_messages = {}
