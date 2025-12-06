@@ -385,3 +385,86 @@ async def premium_users_command(client, message):
         count += 1
     
     await message.reply_text(text)
+
+
+@Client.on_message(filters.command("stars") & filters.user(ADMINS))
+async def stars_balance_command(client, message):
+    """Admin command to check bot's Star balance and recent transactions"""
+    try:
+        # Get star transactions
+        transactions = await client.get_star_transactions(limit=10)
+        
+        text = "<b>⭐ Bot Stars Dashboard</b>\n\n"
+        
+        # Total balance
+        if hasattr(transactions, 'star_count'):
+            text += f"💰 <b>Current Balance:</b> ⭐ {transactions.star_count}\n\n"
+        
+        text += "<b>📊 Recent Transactions:</b>\n"
+        
+        if transactions.transactions:
+            for txn in transactions.transactions:
+                # Transaction direction
+                if txn.source:
+                    direction = "📥 IN"
+                    user_info = ""
+                    if hasattr(txn.source, 'user') and txn.source.user:
+                        user_info = f" from {txn.source.user.first_name} ({txn.source.user.id})"
+                else:
+                    direction = "📤 OUT"
+                    user_info = ""
+                
+                # Format date
+                txn_date = txn.date.strftime('%d %b %Y, %I:%M %p') if txn.date else 'N/A'
+                
+                text += f"\n{direction} ⭐ {txn.amount}{user_info}\n"
+                text += f"   📅 {txn_date}\n"
+        else:
+            text += "\n<i>No transactions found.</i>"
+        
+        await message.reply_text(text)
+        
+    except Exception as e:
+        logger.error(f"Error getting star transactions: {e}")
+        await message.reply_text(f"❌ Error fetching star data: {e}")
+
+
+@Client.on_message(filters.command("starhistory") & filters.user(ADMINS))
+async def stars_history_command(client, message):
+    """Admin command to get detailed star transaction history"""
+    try:
+        limit = 25
+        if len(message.command) > 1:
+            try:
+                limit = min(int(message.command[1]), 100)
+            except:
+                pass
+        
+        transactions = await client.get_star_transactions(limit=limit)
+        
+        text = f"<b>⭐ Star Transaction History (Last {limit})</b>\n\n"
+        
+        if hasattr(transactions, 'star_count'):
+            text += f"💰 <b>Current Balance:</b> ⭐ {transactions.star_count}\n\n"
+        
+        total_in = 0
+        total_out = 0
+        
+        if transactions.transactions:
+            for txn in transactions.transactions:
+                if txn.source:
+                    total_in += txn.amount
+                else:
+                    total_out += txn.amount
+            
+            text += f"📥 <b>Total Received:</b> ⭐ {total_in}\n"
+            text += f"📤 <b>Total Withdrawn:</b> ⭐ {total_out}\n"
+            text += f"📊 <b>Transactions:</b> {len(transactions.transactions)}\n"
+        else:
+            text += "<i>No transactions found.</i>"
+        
+        await message.reply_text(text)
+        
+    except Exception as e:
+        logger.error(f"Error getting star history: {e}")
+        await message.reply_text(f"❌ Error fetching star history: {e}")
