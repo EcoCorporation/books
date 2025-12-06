@@ -1,20 +1,22 @@
 # EbookGuy Bot
 
-A powerful, fully customizable, and secure Telegram Bot designed for managing ebooks, audiobooks, and digital content with premium monetization via Telegram Stars.
+A powerful, private Telegram Bot designed for managing ebooks, audiobooks, and digital content with premium monetization via Telegram Stars.
 
 ## 🚀 Key Features
 
 ### Core Features
+*   **Private Bot**: Personal 1-on-1 bot experience (no group functionality)
 *   **Format Selection**: Users can choose between Ebooks or Audiobooks before searching
 *   **Smart Search**: Intelligent file filtering with pagination support
 *   **Auto-Delete**: Automatically deletes files after 10 minutes to comply with copyright regulations
 *   **Force Subscribe**: Forces users to join specific channels before accessing the bot
 
-### Premium System (Telegram Stars)
+### Premium System (Telegram Stars ⭐)
 *   **Download Limits**: Free users get 3 downloads per day
-*   **Premium Subscriptions**: Multiple tiers available (1, 7, 15, 30, 60, 90 days)
-*   **Telegram Stars Payment**: Native Telegram payment integration
+*   **Premium Subscriptions**: 6 flexible tiers (1, 7, 15, 30, 60, 90 days)
+*   **Telegram Stars Payment**: Native in-app payment - no external gateways needed
 *   **Unlimited Downloads**: Premium users enjoy unlimited access
+*   **Auto-Renewal Reminders**: Users notified before expiry
 
 ### White-Label & Customization
 *   **White-Label Ready**: Complete control over branding
@@ -25,6 +27,7 @@ A powerful, fully customizable, and secure Telegram Bot designed for managing eb
 *   **Secure Deployment**: Docker container runs as non-root user
 *   **Backup Channel Support**: "Request Group Link" ensures content access
 *   **Smart Indexing**: Efficiently indexes files with checkpoint/resume support
+*   **Koyeb/Docker Ready**: Optimized for cloud deployment
 
 ## 🛠 Configuration
 
@@ -77,7 +80,14 @@ This bot is optimized for Docker.
 
 ### Premium & Monetization
 *   `/premium` - View premium subscription options with Star pricing
-*   `/mystatus` - Check your premium status and remaining time
+*   `/mystatus` - Check your premium status and remaining downloads
+
+### Premium Admin Commands
+*   `/addpremium <user_id> <days>` - Gift premium to a user
+*   `/removepremium <user_id>` - Remove premium from a user
+*   `/premiumusers` - List all premium subscribers
+*   `/stars` - Check bot's Star balance and recent transactions
+*   `/starhistory [limit]` - View detailed Star transaction history
 
 ### Admin
 *   `/logs` - Get recent error logs
@@ -98,25 +108,30 @@ This bot is optimized for Docker.
 *   `/delall` - Delete all filters
 *   `/find_duplicates` - Find duplicate files in database
 
-### Group Management
-*   `/connect` - Connect group to PM
-*   `/disconnect` - Disconnect group
-*   `/settings` - Open settings menu
-*   `/fsub` - Add force subscribe channel
-*   `/nofsub` - Remove force subscribe
-
 ### Extras
 *   `/batch` - Create a batch link for multiple files
 *   `/link` - Create a link for a single file
 *   `/stream` - Generate stream/download links
 
+## 💎 Premium Pricing
+
+| Duration | Price (Stars ⭐) |
+|----------|------------------|
+| 1 Day    | 11 ⭐            |
+| 7 Days   | 60 ⭐            |
+| 15 Days  | 110 ⭐           |
+| 30 Days  | 185 ⭐           |
+| 60 Days  | 340 ⭐           |
+| 90 Days  | 480 ⭐           |
+
 ## 💎 Premium Benefits
 
 | Feature | Free Users | Premium Users |
 |---------|------------|---------------|
-| Daily Downloads | 3 per day | Unlimited |
+| Daily Downloads | 3 per day | Unlimited ∞ |
 | Download Speed | Standard | Priority |
 | File Access | All files | All files |
+| Support | Standard | Priority |
 
 ## 📝 License
 
