@@ -1,11 +1,8 @@
 import logging
 import datetime
 from pyrogram import Client, filters
-from pyrogram.types import InlineKeyboardMarkup, InlineKeyboardButton, CallbackQuery
+from pyrogram.types import InlineKeyboardMarkup, InlineKeyboardButton, CallbackQuery, PreCheckoutQuery, LabeledPrice
 from pyrogram.errors import MessageNotModified
-from pyrogram.raw.types import LabeledPrice
-from pyrogram.raw.functions.messages import SendMedia
-from pyrogram.raw.types import InputMediaInvoice, Invoice, DataJSON
 from info import ADMINS, PREMIUM_PRICES, FREE_DAILY_LIMIT
 from database.users_chats_db import db
 from Script import script
@@ -231,114 +228,67 @@ async def confirm_premium_callback(client, query):
     
     # Create invoice for Telegram Stars payment
     try:
-        # Use raw API to send invoice
-        peer = await client.resolve_peer(user_id)
-        
-        invoice = Invoice(
-            currency="XTR",  # Telegram Stars
-            prices=[LabeledPrice(label=f"{days} Day{'s' if days > 1 else ''} Premium", amount=stars)],
-            test=False,
-            name_requested=False,
-            phone_requested=False,
-            email_requested=False,
-            shipping_address_requested=False,
-            flexible=False
-        )
-        
-        media = InputMediaInvoice(
+        invoice_msg = await client.send_invoice(
+            chat_id=user_id,
             title=f"Premium - {days} Day{'s' if days > 1 else ''}",
-            description=f"Get {days} day{'s' if days > 1 else ''} of Premium access with unlimited downloads.",
-            invoice=invoice,
-            payload=f"premium_{days}_{user_id}".encode(),
-            provider="",  # Empty for Telegram Stars
-            provider_data=DataJSON(data="{}")
+            description=f"Get {days} day{'s' if days > 1 else ''} of Premium access with unlimited downloads. If you already have Premium, this will extend your existing plan.",
+            payload=f"premium_{days}_{user_id}",
+            currency="XTR",  # Telegram Stars
+            prices=[LabeledPrice(label=f"{days} Day{'s' if days > 1 else ''} Premium", amount=stars)]
         )
-        
-        result = await client.invoke(
-            SendMedia(
-                peer=peer,
-                media=media,
-                message="",
-                random_id=client.rnd_id()
-            )
-        )
-        
         # Track this invoice message
-        if result.updates:
-            for update in result.updates:
-                if hasattr(update, 'message') and hasattr(update.message, 'id'):
-                    last_invoice_messages[user_id] = update.message.id
-                    break
-        
+        last_invoice_messages[user_id] = invoice_msg.id
         await query.answer()
     except Exception as e:
         logger.error(f"Error creating invoice: {e}")
         await query.answer(f"Error creating payment. Please try again later.", show_alert=True)
 
 
-@Client.on_raw_update()
-async def raw_update_handler(client, update, users, chats):
-    """Handle raw updates including pre_checkout_query"""
-    from pyrogram.raw.types import UpdateBotPrecheckoutQuery
-    
-    if isinstance(update, UpdateBotPrecheckoutQuery):
-        try:
-            payload = update.payload.decode()
-            if payload.startswith("premium_"):
-                parts = payload.split("_")
-                if len(parts) >= 3:
-                    days = int(parts[1])
-                    expected_user_id = int(parts[2])
-                    
-                    if days in PREMIUM_PRICES and expected_user_id == update.user_id:
-                        # Approve the payment
-                        from pyrogram.raw.functions.messages import SetBotPrecheckoutResults
-                        await client.invoke(
-                            SetBotPrecheckoutResults(
-                                query_id=update.query_id,
-                                success=True
-                            )
-                        )
-                        return
+@Client.on_pre_checkout_query()
+async def pre_checkout_handler(client, query: PreCheckoutQuery):
+    """Handle pre-checkout query - approve the payment"""
+    try:
+        # Parse payload to verify
+        payload = query.invoice_payload
+        if payload.startswith("premium_"):
+            parts = payload.split("_")
+            if len(parts) >= 3:
+                days = int(parts[1])
+                user_id = int(parts[2])
+                
+                if days in PREMIUM_PRICES and user_id == query.from_user.id:
+                    await query.answer(ok=True)
+                    return
+        
+        await query.answer(ok=False, error_message="Invalid payment request")
+    except Exception as e:
+        logger.error(f"Pre-checkout error: {e}")
+        await query.answer(ok=False, error_message="Payment verification failed")
+
+
+@Client.on_message(filters.successful_payment)
+async def successful_payment_handler(client, message):
+    """Handle successful payment - activate premium"""
+    try:
+        payment = message.successful_payment
+        payload = payment.invoice_payload
+        
+        if payload.startswith("premium_"):
+            parts = payload.split("_")
+            days = int(parts[1])
+            user_id = message.from_user.id
             
-            # Reject if validation failed
-            from pyrogram.raw.functions.messages import SetBotPrecheckoutResults
-            await client.invoke(
-                SetBotPrecheckoutResults(
-                    query_id=update.query_id,
-                    success=False,
-                    error="Invalid payment request"
-                )
-            )
-        except Exception as e:
-            logger.error(f"Pre-checkout error: {e}")
-    
-    # Handle successful payment
-    from pyrogram.raw.types import UpdateNewMessage, MessageService, MessageActionPaymentSentMe
-    
-    if isinstance(update, UpdateNewMessage):
-        if hasattr(update, 'message') and isinstance(update.message, MessageService):
-            if isinstance(update.message.action, MessageActionPaymentSentMe):
-                try:
-                    action = update.message.action
-                    payload = action.payload.decode()
-                    
-                    if payload.startswith("premium_"):
-                        parts = payload.split("_")
-                        days = int(parts[1])
-                        user_id = update.message.peer_id.user_id if hasattr(update.message.peer_id, 'user_id') else int(parts[2])
-                        
-                        # Activate/extend premium
-                        new_expiry = await db.set_premium(user_id, days)
-                        
-                        if new_expiry:
-                            text = f"""
+            # Activate/extend premium
+            new_expiry = await db.set_premium(user_id, days)
+            
+            if new_expiry:
+                text = f"""
 🎉 <b>Payment Successful!</b>
 
 ⭐ <b>Premium Activated!</b>
 📅 <b>Duration:</b> {days} day{'s' if days > 1 else ''}
 ⏰ <b>Valid Until:</b> {new_expiry.strftime('%d %B %Y, %I:%M %p')}
-💰 <b>Stars Paid:</b> {action.total_amount} ⭐
+💰 <b>Stars Paid:</b> {payment.total_amount} ⭐
 
 <b>You now have:</b>
 ✅ Unlimited downloads
@@ -349,12 +299,15 @@ async def raw_update_handler(client, update, users, chats):
 
 Use /mystatus to check your premium status anytime.
 """
-                            await client.send_message(user_id, text)
-                            logger.info(f"Premium activated: User {user_id}, {days} days, {action.total_amount} stars")
-                        else:
-                            await client.send_message(user_id, "❌ Error activating premium. Please contact support.")
-                except Exception as e:
-                    logger.error(f"Payment processing error: {e}")
+                await message.reply_text(text)
+                
+                # Log the payment
+                logger.info(f"Premium activated: User {user_id}, {days} days, {payment.total_amount} stars")
+            else:
+                await message.reply_text("❌ Error activating premium. Please contact support.")
+    except Exception as e:
+        logger.error(f"Payment processing error: {e}")
+        await message.reply_text("❌ Error processing payment. Please contact support with your payment receipt.")
 
 
 # Admin commands for premium management
