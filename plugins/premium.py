@@ -34,7 +34,7 @@ def get_readable_time(seconds):
         return f"{days} days"
 
 
-@Client.on_message(filters.command("premium") & filters.private)
+@Client.on_message(filters.command("premium") & filters.private, group=-1)
 async def premium_command(client, message):
     """Show premium plans and purchase options"""
     user_id = message.from_user.id
@@ -81,7 +81,7 @@ async def premium_command(client, message):
     )
 
 
-@Client.on_message(filters.command("mystatus") & filters.private)
+@Client.on_message(filters.command("mystatus") & filters.private, group=-1)
 async def my_status_command(client, message):
     """Check user's premium status and download stats"""
     user_id = message.from_user.id
@@ -316,7 +316,7 @@ Use /mystatus to check your premium status anytime.
 
 
 # Admin commands for premium management
-@Client.on_message(filters.command("addpremium") & filters.user(ADMINS))
+@Client.on_message(filters.command("addpremium") & filters.user(ADMINS), group=-1)
 async def add_premium_command(client, message):
     """Admin command to add premium to a user"""
     if len(message.command) < 3:
@@ -344,7 +344,7 @@ async def add_premium_command(client, message):
         await message.reply_text("Invalid user_id or days. Both must be numbers.")
 
 
-@Client.on_message(filters.command("removepremium") & filters.user(ADMINS))
+@Client.on_message(filters.command("removepremium") & filters.user(ADMINS), group=-1)
 async def remove_premium_command(client, message):
     """Admin command to remove premium from a user"""
     if len(message.command) < 2:
@@ -364,7 +364,7 @@ async def remove_premium_command(client, message):
         await message.reply_text("Invalid user_id. Must be a number.")
 
 
-@Client.on_message(filters.command("premiumusers") & filters.user(ADMINS))
+@Client.on_message(filters.command("premiumusers") & filters.user(ADMINS), group=-1)
 async def premium_users_command(client, message):
     """Admin command to list premium users"""
     total_premium = await db.get_premium_stats()
@@ -392,7 +392,7 @@ async def premium_users_command(client, message):
     await message.reply_text(text)
 
 
-@Client.on_message(filters.command("stars") & filters.user(ADMINS))
+@Client.on_message(filters.command("stars") & filters.user(ADMINS), group=-1)
 async def stars_balance_command(client, message):
     """Admin command to check bot's Star balance and recent transactions"""
     try:
@@ -434,7 +434,7 @@ async def stars_balance_command(client, message):
         await message.reply_text(f"❌ Error fetching star data: {e}")
 
 
-@Client.on_message(filters.command("starhistory") & filters.user(ADMINS))
+@Client.on_message(filters.command("starhistory") & filters.user(ADMINS), group=-1)
 async def stars_history_command(client, message):
     """Admin command to get detailed star transaction history"""
     try:
