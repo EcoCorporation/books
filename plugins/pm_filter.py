@@ -264,6 +264,11 @@ async def cb_handler(client: Client, query: CallbackQuery):
         from plugins.premium import buy_premium_callback
         await buy_premium_callback(client, query)
         return
+    elif query.data.startswith("confirm_premium_"):
+        # Redirect to confirm premium handler
+        from plugins.premium import confirm_premium_callback
+        await confirm_premium_callback(client, query)
+        return
     elif query.data == "gfiltersdeleteallconfirm":
         await del_allg(query.message, 'gfilters')
         await query.answer("Done !")
