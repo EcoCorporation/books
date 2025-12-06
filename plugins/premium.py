@@ -9,6 +9,9 @@ from Script import script
 
 logger = logging.getLogger(__name__)
 
+# Track last invoice message for each user to delete when they select a new plan
+last_invoice_messages = {}
+
 
 def get_readable_time(seconds):
     """Convert seconds to readable time format"""
@@ -161,23 +164,80 @@ async def show_premium_callback(client, query):
 
 @Client.on_callback_query(filters.regex(r"^buy_premium_(\d+)$"))
 async def buy_premium_callback(client, query):
-    """Handle premium purchase button click"""
+    """Handle premium purchase button click - show confirmation"""
     days = int(query.data.split("_")[2])
     stars = PREMIUM_PRICES.get(days)
     
     if not stars:
         return await query.answer("Invalid plan!", show_alert=True)
     
+    # Show confirmation message in the same message
+    text = f"""
+<b>⭐ Confirm Your Purchase</b>
+
+📦 <b>Plan:</b> {days} Day{'s' if days > 1 else ''} Premium
+💰 <b>Price:</b> ⭐ {stars} Stars
+
+<b>Benefits:</b>
+✅ Unlimited Downloads
+✅ No daily limits
+✅ Direct access to all books
+
+💡 <i>If you already have Premium, this will extend your existing plan.</i>
+
+<b>Click "Confirm & Pay" to proceed with payment.</b>
+"""
+    
+    buttons = [
+        [InlineKeyboardButton(f"✅ Confirm & Pay ⭐ {stars}", callback_data=f"confirm_premium_{days}")],
+        [InlineKeyboardButton("« Back to Plans", callback_data="show_premium")],
+        [InlineKeyboardButton("❌ Cancel", callback_data="close_data")]
+    ]
+    
+    try:
+        await query.message.edit_text(
+            text,
+            reply_markup=InlineKeyboardMarkup(buttons)
+        )
+    except MessageNotModified:
+        pass
+
+
+@Client.on_callback_query(filters.regex(r"^confirm_premium_(\d+)$"))
+async def confirm_premium_callback(client, query):
+    """Handle confirmed premium purchase - send invoice"""
+    days = int(query.data.split("_")[2])
+    stars = PREMIUM_PRICES.get(days)
+    user_id = query.from_user.id
+    
+    if not stars:
+        return await query.answer("Invalid plan!", show_alert=True)
+    
+    # Delete previous invoice message if exists
+    if user_id in last_invoice_messages:
+        try:
+            await client.delete_messages(user_id, last_invoice_messages[user_id])
+        except:
+            pass
+    
+    # Delete the confirmation message
+    try:
+        await query.message.delete()
+    except:
+        pass
+    
     # Create invoice for Telegram Stars payment
     try:
-        await client.send_invoice(
-            chat_id=query.from_user.id,
+        invoice_msg = await client.send_invoice(
+            chat_id=user_id,
             title=f"Premium - {days} Day{'s' if days > 1 else ''}",
             description=f"Get {days} day{'s' if days > 1 else ''} of Premium access with unlimited downloads. If you already have Premium, this will extend your existing plan.",
-            payload=f"premium_{days}_{query.from_user.id}",
+            payload=f"premium_{days}_{user_id}",
             currency="XTR",  # Telegram Stars
             prices=[LabeledPrice(label=f"{days} Day{'s' if days > 1 else ''} Premium", amount=stars)]
         )
+        # Track this invoice message
+        last_invoice_messages[user_id] = invoice_msg.id
         await query.answer()
     except Exception as e:
         logger.error(f"Error creating invoice: {e}")
